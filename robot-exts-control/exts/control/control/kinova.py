@@ -27,7 +27,6 @@ class Kinova(Robot):
         self._end_effector = None
         self._gripper = None
         self._end_effector_prim_name = end_effector_prim_name
-        self._end_effector_prim_path = prim_path + "/panda_rightfinger"
 
         super().__init__(
             prim_path=prim_path, name=name, position=position, orientation=orientation, articulation_controller=None
@@ -37,15 +36,15 @@ class Kinova(Robot):
         gripper_dof_names = [
                             "left_outer_knuckle_joint", "right_outer_knuckle_joint",
                             "left_inner_knuckle_joint", "right_inner_knuckle_joint",
-                            "left_outer_finger_joint", "right_outer_finger_joint", 
+                            #"left_outer_finger_joint", "right_outer_finger_joint", 
                             "left_inner_finger_joint", "right_inner_finger_joint",
                             ]
         
-        gripper_open_position = np.zeros(8)
-        gripper_closed_position = np.ones(8)
+        gripper_open_position = np.zeros(6)
+        gripper_closed_position = np.ones(6)
         deltas = None
 
-        self.gripper = ParallelGripper(
+        self._gripper = ParallelGripper(
                 end_effector_prim_path=self._end_effector_prim_path,
                 joint_prim_names=gripper_dof_names,
                 joint_opened_positions=gripper_open_position,
@@ -53,4 +52,19 @@ class Kinova(Robot):
                 action_deltas=deltas,
             )
 
+        return
+    
+    def initialize(self, physics_sim_view=None) -> None:
+        """[summary]
+        """
+        super().initialize(physics_sim_view)
+        self._end_effector = RigidPrim(prim_path=self._end_effector_prim_path, name=self.name + "_end_effector")
+        self._end_effector.initialize(physics_sim_view)
+        self._gripper.initialize(
+            physics_sim_view=physics_sim_view,
+            articulation_apply_action_func=self.apply_action,
+            get_joint_positions_func=self.get_joint_positions,
+            set_joint_positions_func=self.set_joint_positions,
+            dof_names=self.dof_names,
+        )
         return

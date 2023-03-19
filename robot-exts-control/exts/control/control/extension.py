@@ -34,13 +34,14 @@ class ControlExtension(omni.ext.IExt):
     def set_robot(self):
         print("set_robot")
         prim_path = "/World/kinova"
-        self.kinova = Robot(prim_path = prim_path, name = "kinova_robot")
+        self.kinova = Kinova(prim_path = prim_path, name = "kinova_robot")
         self.kinova.initialize()
         print("kinova_info", self.kinova.num_dof)
+        print("kinova_gripper", self.kinova._gripper._articulation_num_dofs)
     
     def debug(self):
         print("debug")
-       
+        print("get_joint_positions: ", self.kinova.get_joint_positions())
         
 
     def on_shutdown(self):
