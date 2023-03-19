@@ -11,8 +11,8 @@ from omni.isaac.manipulators.grippers.parallel_gripper import ParallelGripper
 class Kinova(Robot):
     def __init__(
         self,
-        prim_path: str,
-        name: str = "franka_robot",
+        prim_path: str = "/World/kinova",
+        name: str = "kinova_robot",
         usd_path: Optional[str] = None,
         position: Optional[np.ndarray] = None,
         orientation: Optional[np.ndarray] = None,
@@ -27,28 +27,30 @@ class Kinova(Robot):
         self._end_effector = None
         self._gripper = None
         self._end_effector_prim_name = end_effector_prim_name
+        self._end_effector_prim_path = prim_path + "/panda_rightfinger"
 
-        if self._end_effector_prim_name is None:
-            self._end_effector_prim_path = prim_path + "/panda_rightfinger"
-        else:
-            self._end_effector_prim_path = prim_path + "/" + end_effector_prim_name
-        if gripper_dof_names is None:
-            gripper_dof_names = ["panda_finger_joint1", "panda_finger_joint2"]
-        if gripper_open_position is None:
-            gripper_open_position = np.array([0.05, 0.05]) / get_stage_units()
-        if gripper_closed_position is None:
-            gripper_closed_position = np.array([0.0, 0.0])
         super().__init__(
             prim_path=prim_path, name=name, position=position, orientation=orientation, articulation_controller=None
         )
-        if gripper_dof_names is not None:
-            if deltas is None:
-                deltas = np.array([0.05, 0.05]) / get_stage_units()
-            self._gripper = ParallelGripper(
+
+        self._end_effector_prim_path = prim_path + "/right_inner_finger"
+        gripper_dof_names = [
+                            "left_outer_knuckle_joint", "right_outer_knuckle_joint",
+                            "left_inner_knuckle_joint", "right_inner_knuckle_joint",
+                            "left_outer_finger_joint", "right_outer_finger_joint", 
+                            "left_inner_finger_joint", "right_inner_finger_joint",
+                            ]
+        
+        gripper_open_position = np.zeros(8)
+        gripper_closed_position = np.ones(8)
+        deltas = None
+
+        self.gripper = ParallelGripper(
                 end_effector_prim_path=self._end_effector_prim_path,
                 joint_prim_names=gripper_dof_names,
                 joint_opened_positions=gripper_open_position,
                 joint_closed_positions=gripper_closed_position,
                 action_deltas=deltas,
             )
+
         return

@@ -11,6 +11,8 @@ from omni.isaac.core.utils.stage import add_reference_to_stage, get_stage_units
 import carb
 from omni.isaac.manipulators.grippers.parallel_gripper import ParallelGripper
 
+from .kinova import Kinova
+
 # Any class derived from `omni.ext.IExt` in top level module (defined in `python.modules` of `extension.toml`) will be
 # instantiated when extension gets enabled and `on_startup(ext_id)` will be called. Later when extension gets disabled
 # on_shutdown() is called.
@@ -25,11 +27,21 @@ class ControlExtension(omni.ext.IExt):
         self._window = ui.Window("Robot control", width=300, height=300)
         with self._window.frame:
             with ui.VStack():
-                with ui.HStack(height = 20):
-                    ui.Button("Debug", clicked_fn=self.debug)
+                ui.Button("Set Robot", height = 20, clicked_fn=self.set_robot)
+                ui.Button("Debug", height = 20, clicked_fn=self.debug)
+                    
+    
+    def set_robot(self):
+        print("set_robot")
+        prim_path = "/World/kinova"
+        self.kinova = Robot(prim_path = prim_path, name = "kinova_robot")
+        self.kinova.initialize()
+        print("kinova_info", self.kinova.num_dof)
     
     def debug(self):
         print("debug")
+       
+        
 
     def on_shutdown(self):
         print("[control] control shutdown")
