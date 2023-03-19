@@ -11,7 +11,7 @@ from omni.isaac.core.utils.stage import add_reference_to_stage, get_stage_units
 import carb
 from omni.isaac.manipulators.grippers.parallel_gripper import ParallelGripper
 
-from .kinova import Kinova
+from .kinova.kinova import Kinova
 
 # Any class derived from `omni.ext.IExt` in top level module (defined in `python.modules` of `extension.toml`) will be
 # instantiated when extension gets enabled and `on_startup(ext_id)` will be called. Later when extension gets disabled
