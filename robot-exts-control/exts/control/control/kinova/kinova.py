@@ -35,14 +35,14 @@ class Kinova(Robot):
 
         self._end_effector_prim_path = prim_path + "/right_inner_finger"
         gripper_dof_names = [
-                            "left_outer_knuckle_joint", "right_outer_knuckle_joint",
+                            "finger_joint", "right_outer_knuckle_joint",
                             "left_inner_knuckle_joint", "right_inner_knuckle_joint",
                             #"left_outer_finger_joint", "right_outer_finger_joint", 
                             "left_inner_finger_joint", "right_inner_finger_joint",
                             ]
         
         gripper_open_position = np.zeros(6)
-        gripper_closed_position = np.ones(6)
+        gripper_closed_position = np.array([0.8757, -0.8757, 0.8757, -0.8757, 0.8757, -0.8757, 0.8757])
         deltas = None
 
         self._gripper = KinovaGripper(
