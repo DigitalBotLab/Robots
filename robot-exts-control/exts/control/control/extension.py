@@ -25,26 +25,33 @@ class ControlExtension(omni.ext.IExt):
     def on_startup(self, ext_id):
         print("[control] control startup")
 
-        self._count = 0
-
+        # ui
         self._window = ui.Window("Robot control", width=300, height=300)
         with self._window.frame:
             with ui.VStack():
-                ui.Button("Set Robot", height = 20, clicked_fn=self.set_robot)
+                # ui.Button("Set Robot", height = 20, clicked_fn=self.set_robot)
                 ui.Button("Register Physics Event", height = 20, clicked_fn=self.register_physics_event)
 
+        # robot
         self.kinova = None
-        self.task_controller = None  
+        self.controller = None  
+
+        # stream
+        self._is_stopped = True
+        self._tensor_started = False
     
     def set_robot(self):
         print("set_robot")
+
+        # set robot
         prim_path = "/World/kinova"
         self.kinova = Kinova(prim_path = prim_path, name = "kinova_robot")
         self.kinova.initialize()
         print("kinova_info", self.kinova.num_dof)
         print("kinova_gripper", self.kinova.gripper._gripper_joint_num)
 
-
+        # set controller
+        self.controller = CoffeeMakerController("task_controller", self.kinova)
     
     def register_physics_event(self):
         print("register_physics_event")
@@ -56,15 +63,43 @@ class ControlExtension(omni.ext.IExt):
     def _on_timeline_event(self, event):
         if event.type == int(omni.timeline.TimelineEventType.PLAY):
             self._physics_update_sub = omni.physx.get_physx_interface().subscribe_physics_step_events(self._on_physics_step)
-            self.set_robot()
+            self._is_stopped = False
 
         elif event.type == int(omni.timeline.TimelineEventType.STOP):
             self._physics_update_sub = None
             self._timeline_sub = None
+
+            self._is_stopped = True
+            self._tensor_started = False
         
+
+    def _can_callback_physics_step(self) -> bool:
+        if self._is_stopped:
+            return False
+
+        if self._tensor_started:
+            return True
+
+        self._tensor_started = True
+        self.set_robot()
+        return True
+    
     def _on_physics_step(self, dt):
+        if not self._can_callback_physics_step():
+            return
+
         # pass
-        return
+        position_target = np.zeros(3)
+        end_effector_orientation = np.array([1, 0, 0, 0])
+        
+        if self.controller:
+            print("_on_physics_step")
+            actions = self.controller.forward(
+                target_end_effector_position=position_target,
+                target_end_effector_orientation=end_effector_orientation
+            )
+
+            self.kinova.apply(actions)
 
     def on_shutdown(self):
         print("[control] control shutdown")
