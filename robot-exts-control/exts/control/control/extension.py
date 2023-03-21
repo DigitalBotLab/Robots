@@ -14,6 +14,7 @@ from omni.isaac.manipulators.grippers.parallel_gripper import ParallelGripper
 
 from .kinova.kinova import Kinova
 from .kinova.coffee_controller import CoffeeMakerController
+from .kinova.numpy_utils import euler_angles_to_quat
 
 # Any class derived from `omni.ext.IExt` in top level module (defined in `python.modules` of `extension.toml`) will be
 # instantiated when extension gets enabled and `on_startup(ext_id)` will be called. Later when extension gets disabled
@@ -88,9 +89,10 @@ class ControlExtension(omni.ext.IExt):
         if not self._can_callback_physics_step():
             return
 
-        # pass
-        position_target = np.zeros(3)
-        end_effector_orientation = np.array([1, 0, 0, 0])
+        position_target = np.array([-0.5, 0, 0.5])
+
+        
+        end_effector_orientation = euler_angles_to_quat(np.array([-90, 0, 0]), degrees = True)
         
         if self.controller:
             print("_on_physics_step")
@@ -99,7 +101,7 @@ class ControlExtension(omni.ext.IExt):
                 target_end_effector_orientation=end_effector_orientation
             )
 
-            self.kinova.apply(actions)
+            self.kinova.apply_action(actions)
 
     def on_shutdown(self):
         print("[control] control shutdown")

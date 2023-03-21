@@ -6,7 +6,7 @@
 # distribution of this software and related documentation without an express
 # license agreement from NVIDIA CORPORATION is strictly prohibited.
 
-joint_limit_buffers: [.01, .01, .01, .01]
+joint_limit_buffers: [.01, .01, .01, .01, .01, .01]
 
 # Note: metric_weight and metric_scalar mean the same thing. Set to zero to turn it off.
 rmp_params:
@@ -88,7 +88,7 @@ rmp_params:
         inertia: 0.
 
 canonical_resolve:
-    max_acceleration_norm: 50.  # TODO: try setting much larger
+    max_acceleration_norm: 5000.  # TODO: try setting much larger
     projection_tolerance: .01
     verbose: false
 
@@ -101,3 +101,14 @@ body_cylinders:
 body_collision_controllers:
     - name: Base_Link
       radius: .05
+    - name: Shoulder_Link
+      radius: .05
+    - name: Bicep_Link
+      radius: .05
+    - name: ForeArm_Link
+      radius: .05
+    - name: SphericalWrist1_Link
+      radius: .05
+    - name: SphericalWrist2_Link
+      radius: .05
+
