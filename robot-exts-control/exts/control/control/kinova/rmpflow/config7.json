@@ -1,5 +1,5 @@
 {
-    "end_effector_frame_name": "Bracelet_Link",
+    "end_effector_frame_name": "bracelet_link",
     "maximum_substep_size" : 0.00334,
     "ignore_robot_state_updates" : false,
     "relative_asset_paths": {

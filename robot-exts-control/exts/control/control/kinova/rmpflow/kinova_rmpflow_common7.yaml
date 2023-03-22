@@ -99,7 +99,7 @@ body_cylinders:
       radius: .05
 
 body_collision_controllers:
-    - name: base_Link
+    - name: base_link
       radius: .05
     - name: shoulder_link
       radius: .05
@@ -107,7 +107,7 @@ body_collision_controllers:
       radius: .05
     - name: half_arm_2_link
       radius: .05
-    - name: forearm_Link
+    - name: forearm_link
       radius: .05
     - name: spherical_wrist_1_link
       radius: .05

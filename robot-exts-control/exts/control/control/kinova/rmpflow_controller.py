@@ -23,7 +23,7 @@ class RMPFlowController(mg.MotionPolicyController):
 
     def __init__(self, name: str, robot_articulation: Articulation, physics_dt: float = 1.0 / 60.0) -> None:
         # print("EXTENSION_FOLDER_PATH: ", EXTENSION_FOLDER_PATH)
-        self.rmp_flow_config = process_policy_config(EXTENSION_FOLDER_PATH + "/control/kinova/rmpflow/config.json")
+        self.rmp_flow_config = process_policy_config(EXTENSION_FOLDER_PATH + "/control/kinova/rmpflow/config7.json")
         self.rmp_flow = mg.lula.motion_policies.RmpFlow(**self.rmp_flow_config)
 
         self.articulation_rmp = mg.ArticulationMotionPolicy(robot_articulation, self.rmp_flow, physics_dt)

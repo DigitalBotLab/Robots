@@ -23,7 +23,7 @@ cspace:
     - Actuator6
     - Actuator7
 
-root_link: Base_Link
+root_link: base_link
 
 default_q: [
     0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00
