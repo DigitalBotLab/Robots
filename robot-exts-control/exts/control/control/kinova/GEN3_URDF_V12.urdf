@@ -1,0 +1,747 @@
+<robot name="GEN3_URDF_V12" version="1.0">
+  <link name="base_link">
+    <inertial>
+      <origin xyz="-0.000648 -0.000166 0.084487" rpy="0 0 0" />
+      <mass value="1.697" />
+      <inertia ixx="0.004622" ixy="9E-06" ixz="6E-05" iyy="0.004495" iyz="9E-06" izz="0.002079" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://gen3/7dof/meshes/base_link.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://gen3/7dof/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="shoulder_link">
+    <inertial>
+      <origin xyz="-2.3E-05 -0.010364 -0.07336" rpy="0 0 0" />
+      <mass value="1.3773" />
+      <inertia ixx="0.00457" ixy="1E-06" ixz="2E-06" iyy="0.004831" iyz="0.000448" izz="0.001409" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://gen3/7dof/meshes/shoulder_link.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://gen3/7dof/meshes/shoulder_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="Actuator1" type="continuous">
+    <origin xyz="0 0 0.15643" rpy="3.1416 2.7629E-18 -4.9305E-36" />
+    <parent link="base_link" />
+    <child link="shoulder_link" />
+    <axis xyz="0 0 1" />
+    <limit effort="39" velocity="0.8727" />
+  </joint>
+  <link name="half_arm_1_link">
+    <inertial>
+      <origin xyz="-4.4E-05 -0.09958 -0.013278" rpy="0 0 0" />
+      <mass value="1.1636" />
+      <inertia ixx="0.011088" ixy="5E-06" ixz="0" iyy="0.001072" iyz="-0.000691" izz="0.011255" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://gen3/7dof/meshes/half_arm_1_link.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://gen3/7dof/meshes/half_arm_1_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="Actuator2" type="revolute">
+    <origin xyz="0 0.005375 -0.12838" rpy="1.5708 2.1343E-17 -1.1102E-16" />
+    <parent link="shoulder_link" />
+    <child link="half_arm_1_link" />
+    <axis xyz="0 0 1" />
+    <limit lower="-2.41" upper="2.41" effort="39" velocity="0.8727" />
+  </joint>
+  <link name="half_arm_2_link">
+    <inertial>
+      <origin xyz="-4.4E-05 -0.006641 -0.117892" rpy="0 0 0" />
+      <mass value="1.1636" />
+      <inertia ixx="0.010932" ixy="0" ixz="-7E-06" iyy="0.011127" iyz="0.000606" izz="0.001043" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://gen3/7dof/meshes/half_arm_2_link.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://gen3/7dof/meshes/half_arm_2_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="Actuator3" type="continuous">
+    <origin xyz="0 -0.21038 -0.006375" rpy="-1.5708 1.2326E-32 -2.9122E-16" />
+    <parent link="half_arm_1_link" />
+    <child link="half_arm_2_link" />
+    <axis xyz="0 0 1" />
+    <limit effort="39" velocity="0.8727" />
+  </joint>
+  <link name="forearm_link">
+    <inertial>
+      <origin xyz="-1.8E-05 -0.075478 -0.015006" rpy="0 0 0" />
+      <mass value="0.9302" />
+      <inertia ixx="0.008147" ixy="-1E-06" ixz="0" iyy="0.000631" iyz="-0.0005" izz="0.008316" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://gen3/7dof/meshes/forearm_link.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://gen3/7dof/meshes/forearm_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="Actuator4" type="revolute">
+    <origin xyz="0 0.006375 -0.21038" rpy="1.5708 -6.6954E-17 -1.6653E-16" />
+    <parent link="half_arm_2_link" />
+    <child link="forearm_link" />
+    <axis xyz="0 0 1" />
+    <limit lower="-2.66" upper="2.66" effort="39" velocity="0.8727" />
+  </joint>
+  <link name="spherical_wrist_1_link">
+    <inertial>
+      <origin xyz="1E-06 -0.009432 -0.063883" rpy="0 0 0" />
+      <mass value="0.6781" />
+      <inertia ixx="0.001596" ixy="0" ixz="0" iyy="0.001607" iyz="0.000256" izz="0.000399" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://gen3/7dof/meshes/spherical_wrist_1_link.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://gen3/7dof/meshes/spherical_wrist_1_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="Actuator5" type="continuous">
+    <origin xyz="0 -0.20843 -0.006375" rpy="-1.5708 2.2204E-16 -6.373E-17" />
+    <parent link="forearm_link" />
+    <child link="spherical_wrist_1_link" />
+    <axis xyz="0 0 1" />
+    <limit effort="9" velocity="0.8727" />
+  </joint>
+  <link name="spherical_wrist_2_link">
+    <inertial>
+      <origin xyz="1E-06 -0.045483 -0.00965" rpy="0 0 0" />
+      <mass value="0.6781" />
+      <inertia ixx="0.001641" ixy="0" ixz="0" iyy="0.00041" iyz="-0.000278" izz="0.001641" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://gen3/7dof/meshes/spherical_wrist_2_link.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://gen3/7dof/meshes/spherical_wrist_2_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="Actuator6" type="revolute">
+    <origin xyz="0 0.00017505 -0.10593" rpy="1.5708 9.2076E-28 -8.2157E-15" />
+    <parent link="spherical_wrist_1_link" />
+    <child link="spherical_wrist_2_link" />
+    <axis xyz="0 0 1" />
+    <limit lower="-2.23" upper="2.23" effort="9" velocity="0.8727" />
+  </joint>
+  <link name="bracelet_link">
+    <inertial>
+      <origin xyz="-0.000281 -0.011402 -0.029798" rpy="0 0 0" />
+      <mass value="0.5006" />
+      <inertia ixx="0.000587" ixy="3E-06" ixz="3E-06" iyy="0.000369" iyz="0.000118" izz="0.000609" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://gen3/7dof/meshes/bracelet_with_vision_link.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://gen3/7dof/meshes/bracelet_with_vision_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="Actuator7" type="continuous">
+    <origin xyz="0 -0.10593 -0.00017505" rpy="-1.5708 -5.5511E-17 9.6396E-17" />
+    <parent link="spherical_wrist_2_link" />
+    <child link="bracelet_link" />
+    <axis xyz="0 0 1" />
+    <limit effort="9" velocity="0.8727" />
+  </joint>
+   <link
+    name="robotiq_85_base_link">
+    <inertial>
+      <origin
+        xyz="0.00021987 -2.3546E-10 0.030163"
+        rpy="0 0 0" />
+      <mass
+        value="0.30915" />
+      <inertia
+        ixx="0.00028972"
+        ixy="-5.7879E-10"
+        ixz="-1.8543E-06"
+        iyy="0.00030737"
+        iyz="1.682E-12"
+        izz="0.00019914" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gen3/6dof/meshes/robotiq_85_base_link_fine.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.1 0.1 0.1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gen3/6dof/meshes/robotiq_85_base_link_coarse.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="EndEffector" type="fixed">
+    <origin xyz="0 0 -0.0615250000000001" rpy="3.14159265358979 1.09937075168372E-32 0" />
+    <parent link="bracelet_link" />
+    <child link="robotiq_85_base_link" />
+    <axis xyz="0 0 0" />
+  </joint>
+  <link
+    name="left_outer_knuckle">
+    <inertial>
+      <origin
+        xyz="0.0178331863169983 3.68915177224286E-11 0.0021442477325704"
+        rpy="0 0 0" />
+      <mass
+        value="0.00684838849434396" />
+      <inertia
+        ixx="2.66832029033166E-07"
+        ixy="1.66142314639824E-15"
+        ixz="1.45945633322873E-07"
+        iyy="1.3889233257419E-06"
+        iyz="2.82951161241588E-15"
+        izz="1.26603336914415E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gen3/6dof/meshes/outer_knuckle_fine.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.1 0.1 0.1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gen3/6dof/meshes/outer_knuckle_coarse.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="finger_joint"
+    type="revolute">
+    <origin
+      xyz="0.0306011444260539 0 0.0627920162695395"
+      rpy="0 0 0" />
+    <parent
+      link="robotiq_85_base_link" />
+    <child
+      link="left_outer_knuckle" />
+    <axis
+      xyz="0 -1 0" />
+    <limit
+	  lower="0"
+      upper="0.725"
+      velocity="2.0"
+      effort="1000" />
+  </joint>
+   <link
+    name="left_outer_finger">
+    <inertial>
+      <origin
+        xyz="0.00131451599174296 2.88942057994543E-15 0.0215404163180413"
+        rpy="0 0 0" />
+      <mass
+        value="0.0273093985570947" />
+      <inertia
+        ixx="8.51629628283022E-06"
+        ixy="2.58174336207405E-19"
+        ixz="3.83829504344079E-07"
+        iyy="6.9133328065108E-06"
+        iyz="-7.58589926143789E-19"
+        izz="2.25006832221981E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gen3/6dof/meshes/outer_finger_fine.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.1 0.1 0.1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gen3/6dof/meshes/outer_finger_coarse.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="left_outer_finger_joint"
+    type="fixed">
+    <origin
+      xyz="0.0316910442266543 0 -0.00193396375724605"
+      rpy="0 0 0" />
+    <parent
+      link="left_outer_knuckle" />
+    <child
+      link="left_outer_finger" />
+    <axis
+      xyz="0 -1 0" />
+  </joint>
+  <link
+    name="left_inner_knuckle">
+    <inertial>
+      <origin
+        xyz="0.017097546626628 -3.93808524389535E-10 0.0224918438201868"
+        rpy="0 0 0" />
+      <mass
+        value="0.0110930853895903" />
+      <inertia
+        ixx="4.23392770691541E-06"
+        ixy="5.748978936968E-15"
+        ixz="1.78855677119788E-06"
+        iyy="3.96548790524392E-06"
+        iyz="1.05464666369669E-14"
+        izz="3.24068002883007E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gen3/6dof/meshes/inner_knuckle_fine.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.1 0.1 0.1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gen3/6dof/meshes/inner_knuckle_coarse.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="left_inner_knuckle_joint"
+    type="revolute">
+    <origin
+      xyz="0.0127000000001501 0 0.0693074999999639"
+      rpy="0 0 0" />
+    <parent
+      link="robotiq_85_base_link" />
+    <child
+      link="left_inner_knuckle" />
+    <axis
+      xyz="0 -1 0" />
+    <limit
+      lower="0"
+      upper="0.8757"
+      velocity="2.0"
+      effort="1000" />
+    <mimic 
+      joint="finger_joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+  <link
+    name="left_inner_finger">
+    <inertial>
+      <origin
+        xyz="0.0060275613594574 -6.29183141465421E-15 0.00669925693133241"
+        rpy="0 0 0" />
+      <mass
+        value="0.00724255346165745" />
+      <inertia
+        ixx="1.47824274053603E-06"
+        ixy="-3.94884463570303E-19"
+        ixz="-3.45268847648622E-07"
+        iyy="1.70064480838395E-06"
+        iyz="3.5059838910097E-19"
+        izz="4.77151336838364E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gen3/6dof/meshes/inner_finger_fine.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.1 0.1 0.1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gen3/6dof/meshes/inner_finger_coarse.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="left_inner_finger_joint"
+    type="revolute">
+    <origin
+      xyz="0.034585310861294 0 0.0454970193817975"
+      rpy="0 0 0" />
+    <parent
+      link="left_inner_knuckle" />
+    <child
+      link="left_inner_finger" />
+    <axis
+      xyz="0 -1 0" />
+    <limit
+      lower="-0.8757"
+      upper="0"
+      velocity="2.0"
+      effort="1000" />
+    <mimic 
+      joint="finger_joint"
+      multiplier="-1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_inner_knuckle">
+    <inertial>
+      <origin
+        xyz="0.0168606186773776 3.93808471820465E-10 0.0226699950793434"
+        rpy="0 0 0" />
+      <mass
+        value="0.0110930853895903" />
+      <inertia
+        ixx="4.27134775939882E-06"
+        ixy="-8.53568456728898E-15"
+        ixz="1.77774229944246E-06"
+        iyy="3.96548790524392E-06"
+        iyz="-8.45108024914164E-15"
+        izz="3.20325997634666E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gen3/6dof/meshes/inner_knuckle_fine.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.1 0.1 0.1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gen3/6dof/meshes/inner_knuckle_coarse.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_inner_knuckle_joint"
+    type="revolute">
+    <origin
+      xyz="-0.0126999999998499 0 0.0693075000000361"
+      rpy="0 0 3.14159265358979" />
+    <parent
+      link="robotiq_85_base_link" />
+    <child
+      link="right_inner_knuckle" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="-0.8757"
+      upper="0"
+      velocity="2.0"
+      effort="1000" />
+    <mimic 
+      joint="finger_joint"
+      multiplier="-1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_inner_finger">
+    <inertial>
+      <origin
+        xyz="0.00602756228812038 -6.47284509480176E-15 0.00669925609578108"
+        rpy="0 0 0" />
+      <mass
+        value="0.00724255346165744" />
+      <inertia
+        ixx="1.47824283625957E-06"
+        ixy="-3.95952064019123E-19"
+        ixz="-3.45268708875543E-07"
+        iyy="1.70064480838394E-06"
+        iyz="3.55286507960029E-19"
+        izz="4.77151241114822E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gen3/6dof/meshes/inner_finger_fine.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.1 0.1 0.1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gen3/6dof/meshes/inner_finger_coarse.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_inner_finger_joint"
+    type="revolute">
+    <origin
+      xyz="0.0341060475457406 0 0.0458573878541688"
+      rpy="0 0 0" />
+    <parent
+      link="right_inner_knuckle" />
+    <child
+      link="right_inner_finger" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="0"
+      upper="0.8757"
+      velocity="2.0"
+      effort="1000" />
+    <mimic 
+      joint="finger_joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_outer_knuckle">
+    <inertial>
+      <origin
+        xyz="0.0178097074051638 3.60493211424024E-11 0.00233123458346721"
+        rpy="0 0 0" />
+      <mass
+        value="0.00684838849401352" />
+      <inertia
+        ixx="2.70004361573169E-07"
+        ixy="1.59579467624491E-15"
+        ixz="1.56396493788199E-07"
+        iyy="1.38892332558312E-06"
+        iyz="2.82357800318817E-15"
+        izz="1.26286103637978E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gen3/6dof/meshes/outer_knuckle_fine.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.1 0.1 0.1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gen3/6dof/meshes/outer_knuckle_coarse.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_outer_knuckle_joint"
+    type="revolute">
+    <origin
+      xyz="-0.0306011444258893 0 0.0627920162695395"
+      rpy="0 0 3.14159265358979" />
+    <parent
+      link="robotiq_85_base_link" />
+    <child
+      link="right_outer_knuckle" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="-0.8757"
+      upper="0"
+      velocity="2.0"
+      effort="1000" />
+    <mimic 
+      joint="finger_joint"
+      multiplier="-1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_outer_finger">
+    <inertial>
+      <origin
+        xyz="0.00108844269639009 -2.611488350845E-15 0.0215530225245502"
+        rpy="0 0 0" />
+      <mass
+        value="0.0273093985570947" />
+      <inertia
+        ixx="8.52366028592721E-06"
+        ixy="3.41683380899422E-19"
+        ixz="3.18003675694284E-07"
+        iyy="6.91333280651081E-06"
+        iyz="7.37726682706417E-19"
+        izz="2.24270431912283E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gen3/6dof/meshes/outer_finger_fine.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.1 0.1 0.1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gen3/6dof/meshes/outer_finger_coarse.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_outer_finger_joint"
+    type="fixed">
+    <origin
+      xyz="0.0317095909367246 0 -0.0016013564954687"
+      rpy="0 0 0" />
+    <parent
+      link="right_outer_knuckle" />
+    <child
+      link="right_outer_finger" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+</robot>

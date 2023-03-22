@@ -1,0 +1,10 @@
+{
+    "end_effector_frame_name": "Bracelet_Link",
+    "maximum_substep_size" : 0.00334,
+    "ignore_robot_state_updates" : false,
+    "relative_asset_paths": {
+        "robot_description_path" : "robot_descriptor7.yaml",
+        "urdf_path": "../GEN3_URDF_V12.urdf",
+        "rmpflow_config_path" : "kinova_rmpflow_common7.yaml"
+    }
+}
