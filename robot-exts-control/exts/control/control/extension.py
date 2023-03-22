@@ -16,9 +16,8 @@ from .kinova.kinova import Kinova
 from .kinova.coffee_controller import CoffeeMakerController
 from .kinova.numpy_utils import euler_angles_to_quat
 
-# Any class derived from `omni.ext.IExt` in top level module (defined in `python.modules` of `extension.toml`) will be
-# instantiated when extension gets enabled and `on_startup(ext_id)` will be called. Later when extension gets disabled
-# on_shutdown() is called.
+# UI
+from .ui.custom_multifield_widget import CustomMultifieldWidget 
 
 class ControlExtension(omni.ext.IExt):
     # ext_id is current extension id. It can be used with extension manager to query additional information, like where
@@ -33,6 +32,23 @@ class ControlExtension(omni.ext.IExt):
                 # ui.Button("Set Robot", height = 20, clicked_fn=self.set_robot)
                 ui.Button("Register Physics Event", height = 20, clicked_fn=self.register_physics_event)
 
+                ui.Spacer(height = 9)
+                ui.Label("End Effector", height = 20)
+                with ui.HStack(height = 20):
+                    self.ee_trans_widget = CustomMultifieldWidget(
+                        label="Transform",
+                        default_vals=[0.0, -0.02486, 1.18738],
+                        height = 20,
+                    )
+                ui.Spacer(height = 9)
+                with ui.HStack(height = 20):
+                    self.ee_ori_widget = CustomMultifieldWidget(
+                        label="Orient (Euler)",
+                        default_vals=[0.0, 0.0, 0.0],
+                        height = 20,
+                    )
+                ui.Button("Update EE Target", height = 20, clicked_fn=self.update_ee_target)
+
         # robot
         self.kinova = None
         self.controller = None  
@@ -41,6 +57,11 @@ class ControlExtension(omni.ext.IExt):
         self._is_stopped = True
         self._tensor_started = False
     
+    ############################################# Robot #######################################
+    def update_ee_target(self):
+        print("update_ee_target")
+
+
     def set_robot(self):
         print("set_robot")
 
@@ -95,13 +116,9 @@ class ControlExtension(omni.ext.IExt):
         end_effector_orientation = euler_angles_to_quat(np.array([-90, 0, 0]), degrees = True)
         
         if self.controller:
-            print("_on_physics_step")
-            actions = self.controller.forward(
-                target_end_effector_position=position_target,
-                target_end_effector_orientation=end_effector_orientation
-            )
-
-            self.kinova.apply_action(actions)
+            # print("_on_physics_step")
+            actions = self.controller.forward()
+            
 
     def on_shutdown(self):
         print("[control] control shutdown")

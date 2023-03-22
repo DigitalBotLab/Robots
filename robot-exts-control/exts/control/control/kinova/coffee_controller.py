@@ -16,14 +16,17 @@ class CoffeeMakerController(BaseController):
         self._controller = RMPFlowController(name="cspace_controller", robot_articulation=self.robot)
         
         # TODO：find height
-        self._end_effector_initial_height = 0.4 / get_stage_units()
-        self._pause = False
+        self.ee_pos_target = np.array([0.0, 0.0, 1.0])
+        self.ee_ori_target = np.array([1.0, 0.0, 0.0, 0.0])
         
-    def forward(self, target_end_effector_position, target_end_effector_orientation):
+        
+    def forward(self):
         actions = self._controller.forward(
-                target_end_effector_position=target_end_effector_position,
-                target_end_effector_orientation=target_end_effector_orientation)
+                target_end_effector_position=self.ee_pos_target,
+                target_end_effector_orientation=self.ee_ori_target)
         
+        self.robot.apply_action(actions)
+
         return actions
     
     
