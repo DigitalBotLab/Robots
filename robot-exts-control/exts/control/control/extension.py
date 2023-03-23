@@ -101,18 +101,20 @@ class ControlExtension(omni.ext.IExt):
         if not self._can_callback_physics_step():
             return
 
-        # if self.controller:
-        #     # print("_on_physics_step")
-        #     actions = self.controller.forward()
+        if self.controller:
+            # print("_on_physics_step")
+            self.controller.forward()
         
-        if self.robot:
-            actions = self.robot.gripper.forward(action="close")
-            print("close actions:", actions)
-            self.robot.apply_action(actions)
+        # if self.robot:
+        #     actions = self.robot.gripper.forward(action="close")
+        #     # print("close actions:", actions)
+        #     self.robot.apply_action(actions)
 
     ############################################# Robot #######################################
     def update_ee_target(self):
+        print("update_ee_target")
         if self.controller:
+            self.controller.update_event("move")
             pos = [self.ee_pos_widget.multifields[i].model.as_float for i in range(3)]
             rot = [self.ee_ori_widget.multifields[i].model.as_float for i in range(3)]
             
@@ -137,9 +139,9 @@ class ControlExtension(omni.ext.IExt):
             
     def toggle_gripper(self):
         print("Toggle Gripper")
-        if self.robot:
-            actions = self.robot.gripper.forward(action="close")
-            self.robot.gripper.apply_action(actions)
+        if self.controller:
+            event = "open" if self.controller.event == "close" else "close"
+            self.controller.update_event(event)
 
     def debug(self):
         print("debug")

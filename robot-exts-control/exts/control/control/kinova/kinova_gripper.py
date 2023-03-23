@@ -199,7 +199,7 @@ class KinovaGripper(Gripper):
                         current_finger_position + self._action_deltas[i]
                     )
         elif action == "close":
-            target_joint_positions = [0] * self._articulation_num_dofs
+            target_joint_positions = [None] * self._articulation_num_dofs
             if self._action_deltas is None:
                 for i in range(self._gripper_joint_num):
                     target_joint_positions[self._joint_dof_indicies[i]] = self._joint_closed_positions[i]
