@@ -27,31 +27,31 @@ class CustomMultifieldWidget(CustomBaseWidget):
                  **kwargs):
         self.__field_labels = sublabels or ["X", "Y", "Z"]
         self.__default_vals = default_vals or [0.0] * len(self.__field_labels)
-        self.__multifields = []
+        self.multifields = []
 
         # Call at the end, rather than start, so build_fn runs after all the init stuff
         CustomBaseWidget.__init__(self, model=model, **kwargs)
 
     def destroy(self):
         CustomBaseWidget.destroy()
-        self.__multifields = []
+        self.multifields = []
 
     @property
     def model(self, index: int = 0) -> Optional[ui.AbstractItemModel]:
         """The widget's model"""
-        if self.__multifields:
-            return self.__multifields[index].model
+        if self.multifields:
+            return self.multifields[index].model
 
     @model.setter
     def model(self, value: ui.AbstractItemModel, index: int = 0):
         """The widget's model"""
-        self.__multifields[index].model = value
+        self.multifields[index].model = value
 
     def _restore_default(self):
         """Restore the default values."""
         if self.revert_img.enabled:
-            for i in range(len(self.__multifields)):
-                model = self.__multifields[i].model
+            for i in range(len(self.multifields)):
+                model = self.multifields[i].model
                 model.as_float = self.__default_vals[i]
             self.revert_img.enabled = False
 
@@ -70,11 +70,11 @@ class CustomMultifieldWidget(CustomBaseWidget):
                     ui.Label(label, name="multi_attr_label", width=0)
                     model = ui.SimpleFloatModel(val)
                     # TODO: Hopefully fix height after Field padding bug is merged!
-                    self.__multifields.append(
+                    self.multifields.append(
                         ui.FloatField(model=model, name="multi_attr_field"))
                 if i < len(self.__default_vals) - 1:
                     # Only put space between fields and not after the last one
                     ui.Spacer(width=15)
 
-        for i, f in enumerate(self.__multifields):
+        for i, f in enumerate(self.multifields):
             f.model.add_value_changed_fn(lambda v: self._on_value_changed(v, i))

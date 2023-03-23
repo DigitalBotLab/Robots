@@ -35,7 +35,7 @@ class ControlExtension(omni.ext.IExt):
                 ui.Spacer(height = 9)
                 ui.Label("End Effector", height = 20)
                 with ui.HStack(height = 20):
-                    self.ee_trans_widget = CustomMultifieldWidget(
+                    self.ee_pos_widget = CustomMultifieldWidget(
                         label="Transform",
                         default_vals=[0.0, -0.02486, 1.18738],
                         height = 20,
@@ -59,8 +59,15 @@ class ControlExtension(omni.ext.IExt):
     
     ############################################# Robot #######################################
     def update_ee_target(self):
-        print("update_ee_target")
+        if self.controller:
+            pos = [self.ee_pos_widget.multifields[i].model.as_float for i in range(3)]
+            rot = [self.ee_ori_widget.multifields[i].model.as_float for i in range(3)]
+            
+            pos = np.array(pos)
+            rot = euler_angles_to_quat(rot, degrees=True)
 
+            print("updating controller ee target:", pos, rot)
+            self.controller.update_ee_target(pos, rot)
 
     def set_robot(self):
         print("set_robot")
@@ -93,6 +100,9 @@ class ControlExtension(omni.ext.IExt):
 
             self._is_stopped = True
             self._tensor_started = False
+
+            self.kinova = None
+            self.controller = None  
         
 
     def _can_callback_physics_step(self) -> bool:

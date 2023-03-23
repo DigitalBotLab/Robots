@@ -19,6 +19,9 @@ class CoffeeMakerController(BaseController):
         self.ee_pos_target = np.array([0.0, 0.0, 1.0])
         self.ee_ori_target = np.array([1.0, 0.0, 0.0, 0.0])
         
+    def update_ee_target(self, pos, ori):
+        self.ee_pos_target = pos
+        self.ee_ori_target = ori
         
     def forward(self):
         actions = self._controller.forward(
