@@ -42,7 +42,7 @@ class Kinova(Robot):
                             ]
         
         gripper_open_position = np.zeros(6)
-        gripper_closed_position = np.array([0.8757, -0.8757, 0.8757, -0.8757, 0.8757, -0.8757, 0.8757])
+        gripper_closed_position = np.array([0.8757, -0.8757, 0.8757, -0.8757, -0.8757, 0.8757]) * 0.8
         deltas = None
 
         self._gripper = KinovaGripper(

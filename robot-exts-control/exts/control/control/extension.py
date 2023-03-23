@@ -48,40 +48,21 @@ class ControlExtension(omni.ext.IExt):
                         height = 20,
                     )
                 ui.Button("Update EE Target", height = 20, clicked_fn=self.update_ee_target)
+                ui.Button("Open/Close Gripper", height = 20, clicked_fn=self.toggle_gripper)
+                ui.Button("Debug", height = 20, clicked_fn = self.debug)
 
         # robot
-        self.kinova = None
+        self.robot = None
         self.controller = None  
 
         # stream
         self._is_stopped = True
         self._tensor_started = False
     
-    ############################################# Robot #######################################
-    def update_ee_target(self):
-        if self.controller:
-            pos = [self.ee_pos_widget.multifields[i].model.as_float for i in range(3)]
-            rot = [self.ee_ori_widget.multifields[i].model.as_float for i in range(3)]
-            
-            pos = np.array(pos)
-            rot = euler_angles_to_quat(rot, degrees=True)
-
-            print("updating controller ee target:", pos, rot)
-            self.controller.update_ee_target(pos, rot)
-
-    def set_robot(self):
-        print("set_robot")
-
-        # set robot
-        prim_path = "/World/kinova"
-        self.kinova = Kinova(prim_path = prim_path, name = "kinova_robot")
-        self.kinova.initialize()
-        print("kinova_info", self.kinova.num_dof)
-        print("kinova_gripper", self.kinova.gripper._gripper_joint_num)
-
-        # set controller
-        self.controller = CoffeeMakerController("task_controller", self.kinova)
+    def on_shutdown(self):
+        print("[control] control shutdown")
     
+    ########################## events #######################################################
     def register_physics_event(self):
         print("register_physics_event")
         
@@ -101,7 +82,7 @@ class ControlExtension(omni.ext.IExt):
             self._is_stopped = True
             self._tensor_started = False
 
-            self.kinova = None
+            self.robot = None
             self.controller = None  
         
 
@@ -120,15 +101,47 @@ class ControlExtension(omni.ext.IExt):
         if not self._can_callback_physics_step():
             return
 
-        position_target = np.array([-0.5, 0, 0.5])
+        # if self.controller:
+        #     # print("_on_physics_step")
+        #     actions = self.controller.forward()
+        
+        if self.robot:
+            actions = self.robot.gripper.forward(action="close")
+            print("close actions:", actions)
+            self.robot.apply_action(actions)
 
-        
-        end_effector_orientation = euler_angles_to_quat(np.array([-90, 0, 0]), degrees = True)
-        
+    ############################################# Robot #######################################
+    def update_ee_target(self):
         if self.controller:
-            # print("_on_physics_step")
-            actions = self.controller.forward()
+            pos = [self.ee_pos_widget.multifields[i].model.as_float for i in range(3)]
+            rot = [self.ee_ori_widget.multifields[i].model.as_float for i in range(3)]
             
+            pos = np.array(pos)
+            rot = euler_angles_to_quat(rot, degrees=True)
 
-    def on_shutdown(self):
-        print("[control] control shutdown")
+            print("updating controller ee target:", pos, rot)
+            self.controller.update_ee_target(pos, rot)
+
+    def set_robot(self):
+        print("set_robot")
+
+        # set robot
+        prim_path = "/World/kinova"
+        self.robot = Kinova(prim_path = prim_path, name = "kinova_robot")
+        self.robot.initialize()
+        print("kinova_info", self.robot.num_dof)
+        print("kinova_gripper", self.robot.gripper._gripper_joint_num)
+
+        # set controller
+        self.controller = CoffeeMakerController("task_controller", self.robot)
+            
+    def toggle_gripper(self):
+        print("Toggle Gripper")
+        if self.robot:
+            actions = self.robot.gripper.forward(action="close")
+            self.robot.gripper.apply_action(actions)
+
+    def debug(self):
+        print("debug")
+        if self.robot:
+            print("robot get pos: ", self.robot.get_joint_positions())

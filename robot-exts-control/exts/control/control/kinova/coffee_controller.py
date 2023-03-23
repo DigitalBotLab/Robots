@@ -23,11 +23,16 @@ class CoffeeMakerController(BaseController):
         self.ee_pos_target = pos
         self.ee_ori_target = ori
         
-    def forward(self):
-        actions = self._controller.forward(
-                target_end_effector_position=self.ee_pos_target,
-                target_end_effector_orientation=self.ee_ori_target)
+    def forward(self, event: str = "move"):
+        if event == "move":
+            actions = self._controller.forward(
+                    target_end_effector_position=self.ee_pos_target,
+                    target_end_effector_orientation=self.ee_ori_target)
+            
+        elif event == "close":
+            actions = self.robot.gripper.forward(action="close")
         
+        print("actions: ", actions)
         self.robot.apply_action(actions)
 
         return actions
