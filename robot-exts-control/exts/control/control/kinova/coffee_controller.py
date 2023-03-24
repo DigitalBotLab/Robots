@@ -61,9 +61,20 @@ class CoffeeMakerController(BaseController):
         elif self.event == "open":
             actions = self.gripper.forward(action="open")
 
-        self.event_t += 1
-        # print("actions: ", actions)
         self.robot.apply_action(actions)
+
+        # from omni.isaac.core.utils.types import ArticulationAction
+        # joint_actions = ArticulationAction()
+    
+        # joint_actions.joint_positions = [0, 15, 180, -130, 0, 55, 90] + [0.8] * 6
+        # for i in range(13):
+        #     joint_actions.joint_positions[i] = np.deg2rad(joint_actions.joint_positions[i])
+
+        # print("joint_actions", joint_actions)
+
+        # self.event_t += 1
+        # # print("actions: ", actions)
+        # self.robot.apply_action(joint_actions)
 
         # synchronize
         if self.connect_server:
@@ -71,6 +82,6 @@ class CoffeeMakerController(BaseController):
                 asyncio.ensure_future(self.synchronize_robot())
 
 
-        return actions
+        # return actions
     
     

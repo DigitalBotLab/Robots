@@ -1,4 +1,5 @@
 import socketserver
+import utilities
 
 class KinovaUDPHandler(socketserver.BaseRequestHandler):
     """
@@ -9,17 +10,19 @@ class KinovaUDPHandler(socketserver.BaseRequestHandler):
     """
 
     def handle(self):
-        data = self.request[0].strip()
+        data = self.request[0].strip() # message from Isaac Sim
         self.process_data(data)
         socket = self.request[1]
         print("{} wrote:".format(self.client_address[0]))
         print(data)
-        socket.sendto(data.upper(), self.client_address)
+
+        reponse = "message back to isaac sim"
+        socket.sendto(reponse, self.client_address)
 
     def process_data(self, data: str):
         """
         Process data as Kinova command to control the real robot
-        data is comprised of 7(body) + 6(gripper) dimensions
+        data is comprised of 7(body) + 1(gripper) dimensions
         """
         pass
         # joint_positions = [float(e) for e in data.split()]
