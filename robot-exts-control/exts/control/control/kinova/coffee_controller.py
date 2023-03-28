@@ -54,15 +54,15 @@ class CoffeeMakerController(BaseController):
         Send message to the Server to 
         """
         # get joint positions and gripper degree
-        positions = self.robot.get_joint_positions()
-        positions = [regulate_degree(e, indegree=False) for e in positions[:7]]
-        gripper_degree = regulate_degree(positions[7], indegree=True)
+        all_positions = self.robot.get_joint_positions()
+        gripper_degree = regulate_degree(all_positions[7], indegree=False)
+        joint_positions = [regulate_degree(e, indegree=False) for e in all_positions[:7]]
+        joint_positions = joint_positions + [gripper_degree]
 
-        positions = positions + [gripper_degree]
-        assert len(positions) == 8, "Invalid number of joint positions"
+        assert len(joint_positions) == 8, "Invalid number of joint positions"
 
         # send message
-        message = " ".join([str(e) for e in positions])
+        message = " ".join([str(e) for e in joint_positions])
         self.client.send_message(message)
         
     def forward(self):

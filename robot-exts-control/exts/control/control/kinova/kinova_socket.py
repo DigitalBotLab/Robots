@@ -8,11 +8,12 @@ class KinovaClient():
         self.host = HOST
         self.port = PORT
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
+        
         # send a test message to the server
         message = "Hello, server!"
         self.sock.sendto(message.encode(), (self.host, self.port))
-
+        self.sock.settimeout(5)
+        
         # wait for a response from the server
         data, addr = self.sock.recvfrom(1024)
 
