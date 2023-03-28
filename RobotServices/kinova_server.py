@@ -13,11 +13,11 @@ class KinovaUDPHandler(socketserver.BaseRequestHandler):
         data = self.request[0].strip() # message from Isaac Sim
         self.process_data(data)
         socket = self.request[1]
-        print("{} wrote:".format(self.client_address[0]))
+        print("{} get:".format(self.client_address[0]))
         print(data)
 
         reponse = "message back to isaac sim"
-        socket.sendto(reponse, self.client_address)
+        socket.sendto(reponse.encode('utf-8'), self.client_address)
 
     def process_data(self, data: str):
         """

@@ -19,7 +19,7 @@ def process_policy_config(mg_config_file):
     return config
 
 
-def regulate_degree(degree: float, min_value: float, max_value: float, indegree: bool = True):
+def regulate_degree(degree: float, min_value: float = 0, max_value: float = 360, indegree: bool = True):
     if not indegree:
         degree = np.rad2deg(degree)
 

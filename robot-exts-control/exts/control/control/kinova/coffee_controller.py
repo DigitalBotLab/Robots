@@ -48,11 +48,15 @@ class CoffeeMakerController(BaseController):
         """
         Send message to the Server to 
         """
+        # get joint positions and gripper degree
         positions = self.robot.get_joint_positions()
-        positions = [regulate_degree(e, indegree=False) for e in positions]
-        assert len(positions) == 7, "Invalid number of joint positions"
+        positions = [regulate_degree(e, indegree=False) for e in positions[:7]]
+        gripper_degree = regulate_degree(positions[7], indegree=True)
 
-        
+        positions = positions + [gripper_degree]
+        assert len(positions) == 8, "Invalid number of joint positions"
+
+        # send message
         message = " ".join([str(e) for e in positions])
         self.client.send_message(message)
         
@@ -77,12 +81,13 @@ class CoffeeMakerController(BaseController):
 
         # print("joint_actions", joint_actions)
 
-        # self.event_count += 1
+        
         # self.robot.apply_action(joint_actions)
-
+        
+        self.event_count += 1 # update event time
         # synchronize
         if self.connect_server:
-            if self.event_count % 30 == 0:
+            if self.event_count % 60 == 0:
                 asyncio.ensure_future(self.synchronize_robot())
 
 
