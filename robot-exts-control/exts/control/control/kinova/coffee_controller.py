@@ -15,7 +15,7 @@ class CoffeeMakerController(BaseController):
     def __init__(self, name: str, kinova: Kinova, connect_server = False) -> None: 
         BaseController.__init__(self, name=name)
         self.event = "move" # action event
-        self.event_t = 0 # event time
+        self.event_count = 0 # event time
         self.robot = kinova
         self.gripper = self.robot.gripper
         self.cs_controller = RMPFlowController(name="cspace_controller", robot_articulation=self.robot)
@@ -42,7 +42,7 @@ class CoffeeMakerController(BaseController):
         """
         if event != self.event:
             self.event = event
-            self.event_t = 0
+            self.event_count = 0
 
     async def synchronize_robot(self):
         """
@@ -77,13 +77,12 @@ class CoffeeMakerController(BaseController):
 
         # print("joint_actions", joint_actions)
 
-        # self.event_t += 1
-        # # print("actions: ", actions)
+        # self.event_count += 1
         # self.robot.apply_action(joint_actions)
 
         # synchronize
         if self.connect_server:
-            if self.event_t % 30 == 0:
+            if self.event_count % 30 == 0:
                 asyncio.ensure_future(self.synchronize_robot())
 
 

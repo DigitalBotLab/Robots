@@ -1,6 +1,27 @@
 import numpy as np
 import math
 
+def quat_to_euler_angles(q, degrees: bool = False):
+    """Convert quaternion to Euler XYZ angles.
+
+    Args:
+        q (np.ndarray): quaternion (w, x, y, z).
+        degrees (bool, optional): Whether output angles are in degrees. Defaults to False.
+
+    Returns:
+        np.ndarray: Euler XYZ angles.
+    """
+    q = q.reshape(-1, 4)
+    w, x, y, z = q[:, 0], q[:, 1], q[:, 2], q[:, 3]
+    roll = np.arctan2(2 * (w * x + y * z), 1 - 2 * (x * x + y * y))
+    pitch = np.arcsin(2 * (w * y - z * x))
+    yaw = np.arctan2(2 * (w * z + x * y), 1 - 2 * (y * y + z * z))
+    if degrees:
+        roll = np.degrees(roll)
+        pitch = np.degrees(pitch)
+        yaw = np.degrees(yaw)
+    return np.stack([roll, pitch, yaw], axis=-1)
+
 def euler_angles_to_quat(euler_angles: np.ndarray, degrees: bool = False) -> np.ndarray:
     """Convert Euler XYZ angles to quaternion.
 

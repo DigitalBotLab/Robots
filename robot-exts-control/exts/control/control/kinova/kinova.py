@@ -33,7 +33,7 @@ class Kinova(Robot):
             prim_path=prim_path, name=name, position=position, orientation=orientation, articulation_controller=None
         )
 
-        self._end_effector_prim_path = prim_path + "/right_inner_finger"
+        self._end_effector_prim_path = prim_path + "/robotiq_85_base_link"
         gripper_dof_names = [
                             "finger_joint", "right_outer_knuckle_joint",
                             "left_inner_knuckle_joint", "right_inner_knuckle_joint",

@@ -24,9 +24,11 @@ class CustomMultifieldWidget(CustomBaseWidget):
                  model: ui.AbstractItemModel = None,
                  sublabels: Optional[List[str]] = None,
                  default_vals: Optional[List[float]] = None,
+                 read_only: bool = False,
                  **kwargs):
         self.__field_labels = sublabels or ["X", "Y", "Z"]
         self.__default_vals = default_vals or [0.0] * len(self.__field_labels)
+        self.read_only = read_only
         self.multifields = []
 
         # Call at the end, rather than start, so build_fn runs after all the init stuff
@@ -72,9 +74,16 @@ class CustomMultifieldWidget(CustomBaseWidget):
                     # TODO: Hopefully fix height after Field padding bug is merged!
                     self.multifields.append(
                         ui.FloatField(model=model, name="multi_attr_field"))
+                    if self.read_only:
+                        self.multifields[i].enabled = False
                 if i < len(self.__default_vals) - 1:
                     # Only put space between fields and not after the last one
                     ui.Spacer(width=15)
 
         for i, f in enumerate(self.multifields):
             f.model.add_value_changed_fn(lambda v: self._on_value_changed(v, i))
+
+    def update(self, multi_values: list):
+        """Update the widget."""
+        for i, f in enumerate(self.multifields):
+            f.model.as_float = multi_values[i]

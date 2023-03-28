@@ -26,6 +26,11 @@ class CustomBoolWidget(CustomBaseWidget):
         # Call at the end, rather than start, so build_fn runs after all the init stuff
         CustomBaseWidget.__init__(self, model=model, **kwargs)
 
+    @property
+    def value(self):
+        """Return the current value of the widget."""
+        return self.bool_image.checked
+
     def destroy(self):
         CustomBaseWidget.destroy()
         self.bool_image = None
