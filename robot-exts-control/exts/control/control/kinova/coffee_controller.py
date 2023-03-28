@@ -15,7 +15,9 @@ class CoffeeMakerController(BaseController):
     def __init__(self, name: str, kinova: Kinova, connect_server = False) -> None: 
         BaseController.__init__(self, name=name)
         self.event = "move" # action event
-        self.event_count = 0 # event time
+        self.total_event_count = 0 # event time
+        self.event_elapsed = 0 # event elapsed time
+        self.event_pool = [] # event pool
         self.robot = kinova
         self.gripper = self.robot.gripper
         self.cs_controller = RMPFlowController(name="cspace_controller", robot_articulation=self.robot)
@@ -28,6 +30,9 @@ class CoffeeMakerController(BaseController):
         self.connect_server = connect_server
         if connect_server:
             self.client = KinovaClient()
+
+    def add_event_to_pool(self, event: str, elapsed: int, ee_pos: np.ndarray, ee_ori: np.ndarray):
+        self.event_pool.append([event, elapsed, ee_pos, ee_ori])
         
     def update_ee_target(self, pos, ori):
         """
@@ -42,7 +47,7 @@ class CoffeeMakerController(BaseController):
         """
         if event != self.event:
             self.event = event
-            self.event_count = 0
+            self.total_event_count = 0
 
     async def synchronize_robot(self):
         """
@@ -61,6 +66,17 @@ class CoffeeMakerController(BaseController):
         self.client.send_message(message)
         
     def forward(self):
+        """
+        Main function to update the robot
+        """
+        # update event
+        if len(self.event_pool) > 0:
+            if self.event_elapsed <= 0:
+                event, elapsed, ee_pos, ee_ori = self.event_pool.pop(0)
+                self.update_event(event)
+                self.update_ee_target(ee_pos, ee_ori)
+                self.event_elapsed = elapsed
+
         if self.event == "move":
             actions = self.cs_controller.forward(
                     target_end_effector_position=self.ee_pos_target,
@@ -84,10 +100,11 @@ class CoffeeMakerController(BaseController):
         
         # self.robot.apply_action(joint_actions)
         
-        self.event_count += 1 # update event time
+        self.total_event_count += 1 # update event time
+        self.event_elapsed -= 1 # update event elapsed time
         # synchronize
         if self.connect_server:
-            if self.event_count % 60 == 0:
+            if self.total_event_count % 60 == 0:
                 asyncio.ensure_future(self.synchronize_robot())
 
 

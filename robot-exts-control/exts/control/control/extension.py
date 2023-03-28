@@ -222,10 +222,31 @@ class ControlExtension(omni.ext.IExt):
 
     def debug(self):
         print("debug")
+        # if self.robot:
+        #     print("robot get pos: ", self.robot.get_joint_positions())
+
+        # # print("ui bool:", self.server_widget.value)
+
+        #     trans = self.robot.end_effector.get_world_pose()
+        #     print("trans:", trans)
+
+        from .kinova.utils import get_prim_pickup_transform
+        # from .kinova.numpy_utils import quat_mul
+        from pxr import Gf
+        pos1, rot1 = get_prim_pickup_transform(omni.usd.get_context().get_stage(), 
+                                                  "/World/capsule", Gf.Vec3d(-0.1, 0, 0)) 
+        
         if self.robot:
-            print("robot get pos: ", self.robot.get_joint_positions())
+            pos = self.robot.end_effector.get_world_pose()[0] 
+            rot_quat = self.robot.end_effector.get_world_pose()[1] # w, x, y, z
+            # print("rot_quat[0], rot_quat[1], rot_quat[2], rot_quat[3]", rot_quat[0], rot_quat[1], rot_quat[2], rot_quat[3])
+            rot_quat = Gf.Quatf(rot_quat[0].item(), rot_quat[1].item(), rot_quat[2].item(), rot_quat[3].item())
+            quat = rot1 * rot_quat
+            # print("offset rot:", rot1, rot_quat, quat)
 
-        # print("ui bool:", self.server_widget.value)
+            # Convert to numpy array
+            quat_array = np.array([quat.GetReal(), quat.GetImaginary()[0], quat.GetImaginary()[1], quat.GetImaginary()[2]])
 
-            trans = self.robot.end_effector.get_world_pose()
-            print("trans:", trans)
+            print("rot euler: ", quat_to_euler_angles(quat_array, degrees=True))
+
+            self.controller.add_event_to_pool("move", 200, pos, quat_array)
