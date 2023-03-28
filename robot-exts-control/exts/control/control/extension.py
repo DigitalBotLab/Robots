@@ -17,7 +17,9 @@ from .kinova.coffee_controller import CoffeeMakerController
 from .kinova.numpy_utils import euler_angles_to_quat
 
 # UI
-from .ui.custom_multifield_widget import CustomMultifieldWidget 
+from .ui.style import julia_modeler_style
+from .ui.custom_multifield_widget import CustomMultifieldWidget
+from .ui.custom_bool_widget import CustomBoolWidget
 
 class ControlExtension(omni.ext.IExt):
     # ext_id is current extension id. It can be used with extension manager to query additional information, like where
@@ -27,11 +29,14 @@ class ControlExtension(omni.ext.IExt):
 
         # ui
         self._window = ui.Window("Robot control", width=300, height=300)
+        self._window.frame.style = julia_modeler_style
         with self._window.frame:
             with ui.VStack():
                 # ui.Button("Set Robot", height = 20, clicked_fn=self.set_robot)
                 ui.Button("Register Physics Event", height = 20, clicked_fn=self.register_physics_event)
 
+                with ui.HStack(height = 20): 
+                    self.server_widget = CustomBoolWidget(label="Connect to Server", default_value=False)
                 ui.Spacer(height = 9)
                 ui.Label("End Effector", height = 20)
                 with ui.HStack(height = 20):
@@ -147,3 +152,5 @@ class ControlExtension(omni.ext.IExt):
         print("debug")
         if self.robot:
             print("robot get pos: ", self.robot.get_joint_positions())
+
+        print("ui bool:", self.server_widget.bool_image.checked)

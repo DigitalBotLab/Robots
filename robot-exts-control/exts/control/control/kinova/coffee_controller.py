@@ -6,6 +6,7 @@ from .kinova import Kinova
 from .rmpflow_controller import RMPFlowController
 import numpy as np
 from .numpy_utils import *
+from .utils import regulate_degree
 
 import asyncio
 from .kinova_socket import KinovaClient
@@ -48,6 +49,10 @@ class CoffeeMakerController(BaseController):
         Send message to the Server to 
         """
         positions = self.robot.get_joint_positions()
+        positions = [regulate_degree(e, indegree=False) for e in positions]
+        assert len(positions) == 7, "Invalid number of joint positions"
+
+        
         message = " ".join([str(e) for e in positions])
         self.client.send_message(message)
         

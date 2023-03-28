@@ -1,5 +1,6 @@
 import os
 import json
+import numpy as np
 from pathlib import Path
 import omni.kit.app
 
@@ -16,3 +17,15 @@ def process_policy_config(mg_config_file):
         config[k] = os.path.join(mp_config_dir, v)
     del config["relative_asset_paths"]
     return config
+
+
+def regulate_degree(degree: float, min_value: float, max_value: float, indegree: bool = True):
+    if not indegree:
+        degree = np.rad2deg(degree)
+
+    if degree < min_value:
+        degree += 360
+    elif degree > max_value:
+        degree -= 360
+    
+    return degree

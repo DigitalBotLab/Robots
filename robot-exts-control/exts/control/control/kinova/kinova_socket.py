@@ -26,5 +26,7 @@ class KinovaClient():
     def send_message(self, message: str):
         self.sock.sendto(bytes(message + "\n", "utf-8"), (self.host, self.port))
         received = str(self.sock.recv(1024), "utf-8")
+        print("Sent:     {}".format(message))
+        print("received: {}".format(received))
 
         return received
