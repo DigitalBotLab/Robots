@@ -195,9 +195,15 @@ class KinovaGripper(Gripper):
                 current_joint_positions = self._get_joint_positions_func()
                 for i in range(self._gripper_joint_num):
                     current_finger_position = current_joint_positions[self._joint_dof_indicies[i]]
-                    target_joint_positions[self._joint_dof_indicies[i]] = (
-                        current_finger_position + self._action_deltas[i]
+                    next_position = self.regulate_joint_position(
+                        current_finger_position + self._action_deltas[i],
+                        self._joint_opened_positions[i],
+                        self._joint_closed_positions[i]
                     )
+                    target_joint_positions[self._joint_dof_indicies[i]] = (
+                        next_position
+                    )
+
         elif action == "close":
             target_joint_positions = [None] * self._articulation_num_dofs
             if self._action_deltas is None:
@@ -207,12 +213,31 @@ class KinovaGripper(Gripper):
                 current_joint_positions = self._get_joint_positions_func()
                 for i in range(self._gripper_joint_num):
                     current_finger_position = current_joint_positions[self._joint_dof_indicies[i]]
+                    next_position = self.regulate_joint_position(
+                        current_finger_position - self._action_deltas[i],
+                        self._joint_opened_positions[i],
+                        self._joint_closed_positions[i]
+                    )
                     target_joint_positions[self._joint_dof_indicies[i]] = (
-                        current_finger_position - self._action_deltas[i]
+                        next_position
                     )
         else:
             raise Exception("action {} is not defined for ParallelGripper".format(action))
+        
+        # print("target_joint_positions", target_joint_positions)
         return ArticulationAction(joint_positions=target_joint_positions)
+    
+    def regulate_joint_position(self, joint_pos, open_pos, close_pos):
+        """
+        Regulates the joint position to be within the range of the open and close positions.
+        """
+        if open_pos > close_pos:
+            open_pos, close_pos = close_pos, open_pos
+        if joint_pos < open_pos:
+            joint_pos = open_pos
+        elif joint_pos > close_pos:
+            joint_pos = close_pos
+        return joint_pos
     
     def apply_action(self, control_actions: ArticulationAction) -> None:
         """Applies actions to all the joints of an articulation that corresponds to the ArticulationAction of the finger joints only.

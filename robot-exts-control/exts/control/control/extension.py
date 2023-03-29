@@ -234,19 +234,30 @@ class ControlExtension(omni.ext.IExt):
         # from .kinova.numpy_utils import quat_mul
         from pxr import Gf
         pos1, rot1 = get_prim_pickup_transform(omni.usd.get_context().get_stage(), 
-                                                  "/World/capsule", Gf.Vec3d(-0.1, 0, 0)) 
+                                                  "/World/capsule", Gf.Vec3d(-0.15, 0, 0)) 
         
         if self.robot:
-            pos = self.robot.end_effector.get_world_pose()[0] 
+            # pos = self.robot.end_effector.get_world_pose()[0]  
+            pos = np.array([0.45666, 0.0, 0.43371])
             rot_quat = self.robot.end_effector.get_world_pose()[1] # w, x, y, z
+            for i in range(len(rot_quat)):
+                rot_quat[i] = 0.5
             # print("rot_quat[0], rot_quat[1], rot_quat[2], rot_quat[3]", rot_quat[0], rot_quat[1], rot_quat[2], rot_quat[3])
             rot_quat = Gf.Quatf(rot_quat[0].item(), rot_quat[1].item(), rot_quat[2].item(), rot_quat[3].item())
             quat = rot1 * rot_quat
-            # print("offset rot:", rot1, rot_quat, quat)
-
-            # Convert to numpy array
             quat_array = np.array([quat.GetReal(), quat.GetImaginary()[0], quat.GetImaginary()[1], quat.GetImaginary()[2]])
+            print("target trans:", pos1, quat_array)
 
-            print("rot euler: ", quat_to_euler_angles(quat_array, degrees=True))
-
-            self.controller.add_event_to_pool("move", 200, pos, quat_array)
+            self.controller.add_event_to_pool("move", 100, pos, quat_array)
+            self.controller.add_event_to_pool("move", 200, np.array([pos1[0], pos1[1], pos[2]]), quat_array)
+            self.controller.add_event_to_pool("move", 100, np.array([pos1[0], pos1[1], pos1[2] + 0.1]), quat_array)
+            self.controller.add_event_to_pool("move", 100, np.array([pos1[0], pos1[1], pos1[2] + 0.01]), quat_array)
+            self.controller.add_event_to_pool("close", 150, None, None)
+            self.controller.add_event_to_pool("move", 200, np.array([pos1[0], pos1[1], pos1[2] + 0.2]), quat_array)
+            
+            rot_y = Gf.Quatd(0, 1, 0, 0)
+            quat = rot_y * quat
+            quat_array = np.array([quat.GetReal(), quat.GetImaginary()[0], quat.GetImaginary()[1], quat.GetImaginary()[2]])
+            
+            self.controller.add_event_to_pool("move", 200, np.array([pos1[0], pos1[1], pos1[2] + 0.2]), quat_array)
+            
