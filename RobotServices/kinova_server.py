@@ -1,5 +1,5 @@
 import socketserver
-# import utilities
+import utilities
 
 class KinovaUDPHandler(socketserver.BaseRequestHandler):
     """
@@ -28,8 +28,10 @@ class KinovaUDPHandler(socketserver.BaseRequestHandler):
         # joint_positions = [float(e) for e in data.split()]
         # assert len(joint_positions) == ?, "The dof is not correct"
 
-    def control_robot(self, joint_positions):
-        pass
+    def control_robot(self, robot, joint_positions):
+        from kinova_control import angular_action_movement
+        angular_action_movement(robot, joint_positions)
+
 
 
 

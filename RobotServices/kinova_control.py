@@ -78,7 +78,7 @@ def example_move_to_home_position(base):
         print("Timeout on action notification wait")
     return finished
 
-def example_angular_action_movement(base):
+def angular_action_movement(base, joint_angles):
     
     print("Starting angular action movement ...")
     action = Base_pb2.Action()
@@ -91,7 +91,7 @@ def example_angular_action_movement(base):
     for joint_id in range(actuator_count.count):
         joint_angle = action.reach_joint_angles.joint_angles.joint_angles.add()
         joint_angle.joint_identifier = joint_id
-        joint_angle.value = 10
+        joint_angle.value = joint_angles[joint_id]
 
     e = threading.Event()
     notification_handle = base.OnNotificationActionTopic(
@@ -106,7 +106,6 @@ def example_angular_action_movement(base):
     finished = e.wait(TIMEOUT_DURATION)
     base.Unsubscribe(notification_handle)
 
-    # 
     for joint_id in range(actuator_count.count):
         joint_angle = action.reach_joint_angles.joint_angles.joint_angles
         print("joint_angle: ", joint_angle)

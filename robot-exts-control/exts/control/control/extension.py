@@ -105,6 +105,8 @@ class ControlExtension(omni.ext.IExt):
                 ui.Spacer(height = 9)
                 ui.Line(height = 2)
                 ui.Button("Debug", height = 20, clicked_fn = self.debug)
+                ui.Button("yh Debug", height = 20, clicked_fn = self.yuanhong_debug)
+
 
 
         # robot
@@ -196,7 +198,7 @@ class ControlExtension(omni.ext.IExt):
 
         # set controller
         self.controller = CoffeeMakerController("task_controller", self.robot, connect_server=self.server_widget.value)
-            
+
     def toggle_gripper(self):
         print("Toggle Gripper")
         if self.controller:
@@ -250,3 +252,6 @@ class ControlExtension(omni.ext.IExt):
             print("rot euler: ", quat_to_euler_angles(quat_array, degrees=True))
 
             self.controller.add_event_to_pool("move", 200, pos, quat_array)
+    
+    def yuanhong_debug(self):
+        pass
