@@ -73,10 +73,13 @@ class CoffeeMakerController(BaseController):
         if len(self.event_pool) > 0:
             if self.event_elapsed <= 0:
                 event, elapsed, ee_pos, ee_ori = self.event_pool.pop(0)
+                print("event, elapsed, ee_pos, ee_ori ", event, elapsed, ee_pos, ee_ori )
                 self.update_event(event)
-                self.update_ee_target(ee_pos, ee_ori)
+                if self.event == "move":
+                    self.update_ee_target(ee_pos, ee_ori)
                 self.event_elapsed = elapsed
 
+        # print("coffee control event", self.event, self.event_elapsed)
         if self.event == "move":
             actions = self.cs_controller.forward(
                     target_end_effector_position=self.ee_pos_target,
