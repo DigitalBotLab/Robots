@@ -32,6 +32,7 @@ class ControlExtension(omni.ext.IExt):
         # set up fps limit
         carb.settings.get_settings().set_float("/app/runLoops/main/rateLimitFrequency", 30) 
         carb.settings.get_settings().set_float("/app/runLoops/present/rateLimitFrequency", 30) 
+        carb.settings.get_settings().set_bool("/rtx/ecoMode/enabled", True)
        
 
         # ui
