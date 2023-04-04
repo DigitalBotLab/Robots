@@ -105,7 +105,7 @@ class ControlExtension(omni.ext.IExt):
 
                 ui.Spacer(height = 9)
                 ui.Line(height = 2)
-                # ui.Button("Debug", height = 20, clicked_fn = self.debug)
+                ui.Button("Debug", height = 20, clicked_fn = self.debug)
                 ui.Button("Debug2", height = 20, clicked_fn = self.debug2)
                 
 
@@ -222,10 +222,10 @@ class ControlExtension(omni.ext.IExt):
         self.ee_ori_euler_read_widget.update(rot_euler[0])
 
 
-    # def debug(self):
-    #     print("debug")
-    #     if self.robot:
-    #         self.controller.apply_high_level_action("go_home")
+    def debug(self):
+        print("debug")
+        if self.robot:
+            self.controller.apply_high_level_action("open_coffee_machine_handle")
     
     def debug2(self):
         print("debug2")

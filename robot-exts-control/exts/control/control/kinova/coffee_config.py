@@ -48,13 +48,33 @@ kinova_action_config = {
         ]
     },
 
-    "'approach_coffee_machine_handle'": {
-        'base_prim': '/coffee_machine',
-        'action_type': 'move',
-        'transform_offset': {
-            'position': [0.5, 0.0, 0.0],
-            'orientation': [1.0, 0.0, 0.0, 0.0],
-        }
-    
-    }
+    "open_coffee_machine_handle": {
+        'base_prim': '/World/Keurig_1_5_add_hold',
+        'steps':[
+            {
+                'action_type': 'move',
+                'duration': 200,
+                'position': [0, -0.5, 0.30921],
+                'orientation': [-0.5, 0.5, 0.5, 0.5],
+            },
+            {
+                'action_type': 'move',
+                'duration': 200,
+                'position': [0, -0.330, 0.30921],
+                'orientation': [-0.5, 0.5, 0.5, 0.5],
+            },
+            {
+                'action_type': 'close',
+                'duration': 100,
+                'gripper_ratio': 100,
+            },
+            {
+                'action_type': 'move',
+                'duration': 100,
+                'position': [0, -0.330, 0.4],
+                'orientation': [-0.5, 0.5, 0.5, 0.5],
+            },
+           
+        ]
+    },
 }
