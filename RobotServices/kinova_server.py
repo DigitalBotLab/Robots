@@ -42,16 +42,20 @@ class KinovaUDPHandler(socketserver.BaseRequestHandler):
         return joint_positions
 
     def control_robot(self, joint_positions):
+        from kortex_api.Exceptions.KServerException import KServerException
         with utilities.DeviceConnection.createTcpConnection(args) as router:
             with utilities.DeviceConnection.createUdpConnection(args) as router_real_time:
                 base = BaseClient(router)
                 base_cyclic = BaseCyclicClient(router_real_time)
-                
+                # gripper = GripperFeedback(base, base_cyclic)
                 success = True
                 success &= angular_action_movement(base, joint_positions[:7])
+                # gripper.Cleanup()
 
-                gripper = GripperFeedback(base, base_cyclic)
-                success &= gripper.Goto(interp(joint_positions[7], [30, 360], [0, 100]))
+
+                # print("go to position", joint_positions[7])
+                # success &= gripper.grip(interp(joint_positions[7], [30, 360], [100, 0]))
+                # gripper.Cleanup()
 
                 return success
 

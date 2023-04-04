@@ -29,7 +29,7 @@ def check_for_end_or_abort(e):
 
 
 def angular_action_movement(base, joint_angles):
-    
+
     print("Starting angular action movement ...")
     action = Base_pb2.Action()
     action.name = "Example angular action movement"
@@ -48,7 +48,7 @@ def angular_action_movement(base, joint_angles):
         check_for_end_or_abort(e),
         Base_pb2.NotificationOptions()
     )
-    
+
     print("Executing action")
     base.ExecuteAction(action)
 
@@ -68,7 +68,7 @@ def angular_action_movement(base, joint_angles):
 
 
 def cartesian_action_movement(base, base_cyclic):
-    
+
     print("Starting Cartesian action movement ...")
     action = Base_pb2.Action()
     action.name = "Example Cartesian action movement"
@@ -102,6 +102,9 @@ def cartesian_action_movement(base, base_cyclic):
     else:
         print("Timeout on action notification wait")
     return finished
+
+
+
 
 
 class GripperFeedback:
@@ -149,7 +152,10 @@ class GripperFeedback:
         base_feedback = self.base_cyclic.RefreshFeedback()
         self.motorcmd.position = base_feedback.interconnect.gripper_feedback.motor[0].position
         self.motorcmd.velocity = 0
-        self.motorcmd.force = 100
+        self.motorcmd.force = force_min
+
+        self.force_min = force_min
+        self.force_max = force_max
 
         for actuator in base_feedback.actuators:
             self.actuator_command = self.base_command.actuators.add()
@@ -182,6 +188,17 @@ class GripperFeedback:
         self.base.SetServoingMode(self.previous_servoing_mode)
 
 
+    def grip(self, target_position):
+        if target_position > 100.0:
+            target_position = 100.0
+        if target_position < 0.0:
+            target_position = 0.0
+        current_force = self.force_min
+        self.motorcmd.position = target_position
+        # self.motorcmd.force = self.force_max
+
+        return True
+
     def Goto(self, target_position):
         """
             Position gripper to a requested target position using a simple
@@ -207,6 +224,7 @@ class GripperFeedback:
 
                 # Calculate speed according to position error (target position VS current position)
                 position_error = target_position - base_feedback.interconnect.gripper_feedback.motor[0].position
+                print("target pos:", target_position)
 
                 # If positional error is small, stop gripper
                 if abs(position_error) < 1.5:
@@ -221,7 +239,7 @@ class GripperFeedback:
                     self.motorcmd.position = target_position
 
             except Exception as e:
-                print("Error in refresh: " + str(e))
+                print(str(e))
                 return False
             time.sleep(0.001)
         return True
