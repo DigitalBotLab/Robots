@@ -230,10 +230,10 @@ class ControlExtension(omni.ext.IExt):
             self.controller.apply_high_level_action("open_coffee_machine_handle")
     
     def debug2(self):
-        # print("debug2")
-        # if self.robot:
-        #     # self.controller.apply_high_level_action("pick_up_capsule")
-        #     self.controller.apply_high_level_action("pick_up_papercup")
+        print("debug2")
+        if self.robot:
+            # self.controller.apply_high_level_action("pick_up_capsule")
+            self.controller.apply_high_level_action("pick_up_papercup")
             
 
 
