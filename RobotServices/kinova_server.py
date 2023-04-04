@@ -4,7 +4,7 @@ import sys, os
 from numpy import interp
 from kortex_api.autogen.client_stubs.BaseClientRpc import BaseClient
 from kortex_api.autogen.client_stubs.BaseCyclicClientRpc import BaseCyclicClient 
-from kinova_control import angular_action_movement, GripperFeedback
+from kinova_control import angular_action_movement, GripperFeedback, GripperCommand
 
 # import files
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -54,7 +54,7 @@ class KinovaUDPHandler(socketserver.BaseRequestHandler):
 
 
                 # print("go to position", joint_positions[7])
-                # success &= gripper.grip(interp(joint_positions[7], [30, 360], [100, 0]))
+                success &= GripperCommand(base, interp(joint_positions[7], [30, 360], [0, 1]))
                 # gripper.Cleanup()
 
                 return success
