@@ -1,17 +1,3 @@
-#! /usr/bin/env python3
-
-###
-# KINOVA (R) KORTEX (TM)
-#
-# Copyright (c) 2018 Kinova inc. All rights reserved.
-#
-# This software may be modified and distributed
-# under the terms of the BSD 3-Clause license.
-#
-# Refer to the LICENSE file for details.
-#
-###
-
 import sys
 import os
 import time
@@ -40,43 +26,7 @@ def check_for_end_or_abort(e):
         or notification.action_event == Base_pb2.ACTION_ABORT:
             e.set()
     return check
- 
-def example_move_to_home_position(base):
-    # Make sure the arm is in Single Level Servoing mode
-    base_servo_mode = Base_pb2.ServoingModeInformation()
-    base_servo_mode.servoing_mode = Base_pb2.SINGLE_LEVEL_SERVOING
-    base.SetServoingMode(base_servo_mode)
-    
-    # Move arm to ready position
-    print("Moving the arm to a safe position")
-    action_type = Base_pb2.RequestedActionType()
-    action_type.action_type = Base_pb2.REACH_JOINT_ANGLES
-    action_list = base.ReadAllActions(action_type)
-    action_handle = None
-    for action in action_list.action_list:
-        if action.name == "Home":
-            action_handle = action.handle
-        
 
-    if action_handle == None:
-        print("Can't reach safe position. Exiting")
-        return False
-
-    e = threading.Event()
-    notification_handle = base.OnNotificationActionTopic(
-        check_for_end_or_abort(e),
-        Base_pb2.NotificationOptions()
-    )
-
-    base.ExecuteActionFromReference(action_handle)
-    finished = e.wait(TIMEOUT_DURATION)
-    base.Unsubscribe(notification_handle)
-
-    if finished:
-        print("Safe position reached")
-    else:
-        print("Timeout on action notification wait")
-    return finished
 
 def angular_action_movement(base, joint_angles):
     
@@ -87,7 +37,7 @@ def angular_action_movement(base, joint_angles):
 
     actuator_count = base.GetActuatorCount()
 
-    # Place arm straight up
+    # move to specified location
     for joint_id in range(actuator_count.count):
         joint_angle = action.reach_joint_angles.joint_angles.joint_angles.add()
         joint_angle.joint_identifier = joint_id
@@ -110,7 +60,6 @@ def angular_action_movement(base, joint_angles):
         joint_angle = action.reach_joint_angles.joint_angles.joint_angles
         print("joint_angle: ", joint_angle)
 
-
     if finished:
         print("Angular movement completed")
     else:
@@ -118,7 +67,7 @@ def angular_action_movement(base, joint_angles):
     return finished
 
 
-def example_cartesian_action_movement(base, base_cyclic):
+def cartesian_action_movement(base, base_cyclic):
     
     print("Starting Cartesian action movement ...")
     action = Base_pb2.Action()
@@ -154,35 +103,125 @@ def example_cartesian_action_movement(base, base_cyclic):
         print("Timeout on action notification wait")
     return finished
 
-def main():
-    
-    # Import the utilities helper module
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-    import utilities
 
-    # Parse arguments
-    args = utilities.parseConnectionArguments()
-    
-    # Create connection to the device and get the router
-    with utilities.DeviceConnection.createTcpConnection(args) as router:
+class GripperFeedback:
+    def __init__(self, base, base_cyclic, proportional_gain = 2.0, force_min = 10, force_max = 30):
+        """
+            GripperFeedback class constructor.
+            Inputs:
+                kortex_api.RouterClient router:            TCP router
+                kortex_api.RouterClient router_real_time:  Real-time UDP router
+                float proportional_gain: Proportional gain used in control loop (default value is 2.0)
+            Outputs:
+                None
+            Notes:
+                - Actuators and gripper initial position are retrieved to set initial positions
+                - Actuator and gripper cyclic command objects are created in constructor. Their
+                  references are used to update position and speed.
+        """
 
-        # Create required services
-        base = BaseClient(router)
-        base_cyclic = BaseCyclicClient(router)
+        self.proportional_gain = proportional_gain
 
-        # Example core
-        success = True
+        ###########################################################################################
+        # UDP and TCP sessions are used in this example.
+        # TCP is used to perform the change of servoing mode
+        # UDP is used for cyclic commands.
+        #
+        # 2 sessions have to be created: 1 for TCP and 1 for UDP
+        ###########################################################################################
 
-        success &= example_move_to_home_position(base)
+        # Create base client using TCP router
+        self.base = base
 
-        print("GetMeasuredJointAngles:", base.GetMeasuredJointAngles())
-        # success &= example_cartesian_action_movement(base, base_cyclic)
-        # success &= example_angular_action_movement(base)
+        # Create base cyclic client using UDP router.
+        self.base_cyclic = base_cyclic
 
-        # You can also refer to the 110-Waypoints examples if you want to execute
-        # a trajectory defined by a series of waypoints in joint space or in Cartesian space
+        # Create base cyclic command object.
+        self.base_command = BaseCyclic_pb2.Command()
+        self.base_command.frame_id = 0
+        self.base_command.interconnect.command_id.identifier = 0
+        self.base_command.interconnect.gripper_command.command_id.identifier = 0
 
-        return 0 if success else 1
+        # Add motor command to interconnect's cyclic
+        self.motorcmd = self.base_command.interconnect.gripper_command.motor_cmd.add()
 
-if __name__ == "__main__":
-    exit(main())
+        # Set gripper's initial position velocity and force
+        base_feedback = self.base_cyclic.RefreshFeedback()
+        self.motorcmd.position = base_feedback.interconnect.gripper_feedback.motor[0].position
+        self.motorcmd.velocity = 0
+        self.motorcmd.force = 100
+
+        for actuator in base_feedback.actuators:
+            self.actuator_command = self.base_command.actuators.add()
+            self.actuator_command.position = actuator.position
+            self.actuator_command.velocity = 0.0
+            self.actuator_command.torque_joint = 0.0
+            self.actuator_command.command_id = 0
+            print("Position = ", actuator.position)
+
+        # Save servoing mode before changing it
+        self.previous_servoing_mode = self.base.GetServoingMode()
+
+        # Set base in low level servoing mode
+        servoing_mode_info = Base_pb2.ServoingModeInformation()
+        servoing_mode_info.servoing_mode = Base_pb2.LOW_LEVEL_SERVOING
+        self.base.SetServoingMode(servoing_mode_info)
+
+    def Cleanup(self):
+        """
+            Restore arm's servoing mode to the one that
+            was effective before running the example.
+            Inputs:
+                None
+            Outputs:
+                None
+            Notes:
+                None
+        """
+        # Restore servoing mode to the one that was in use before running the example
+        self.base.SetServoingMode(self.previous_servoing_mode)
+
+
+    def Goto(self, target_position):
+        """
+            Position gripper to a requested target position using a simple
+            proportional feedback loop which changes torque according to error
+            between target position and current gripper position
+            Inputs:
+                float target_position: position (0% - 100%) to send gripper to.
+            Outputs:
+                Returns True if gripper was positionned successfully, returns False
+                otherwise.
+            Notes:
+                - This function blocks until position is reached.
+                - If target position exceeds 100.0, its value is changed to 100.0.
+                - If target position is below 0.0, its value is set to 0.0.
+        """
+        if target_position > 100.0:
+            target_position = 100.0
+        if target_position < 0.0:
+            target_position = 0.0
+        while True:
+            try:
+                base_feedback = self.base_cyclic.Refresh(self.base_command)
+
+                # Calculate speed according to position error (target position VS current position)
+                position_error = target_position - base_feedback.interconnect.gripper_feedback.motor[0].position
+
+                # If positional error is small, stop gripper
+                if abs(position_error) < 1.5:
+                    position_error = 0
+                    self.motorcmd.velocity = 0
+                    self.base_cyclic.Refresh(self.base_command)
+                    return True
+                else:
+                    self.motorcmd.velocity = self.proportional_gain * abs(position_error)
+                    if self.motorcmd.velocity > 100.0:
+                        self.motorcmd.velocity = 100.0
+                    self.motorcmd.position = target_position
+
+            except Exception as e:
+                print("Error in refresh: " + str(e))
+                return False
+            time.sleep(0.001)
+        return True
