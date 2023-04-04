@@ -106,8 +106,10 @@ class ControlExtension(omni.ext.IExt):
                 ui.Spacer(height = 9)
                 ui.Line(height = 2)
                 ui.Button("Debug", height = 20, clicked_fn = self.debug)
+                ui.Button("yh Debug", height = 20, clicked_fn = self.yuanhong_debug)
                 ui.Button("Debug2", height = 20, clicked_fn = self.debug2)
                 
+
 
         # robot
         self.robot = None
@@ -198,7 +200,7 @@ class ControlExtension(omni.ext.IExt):
 
         # set controller
         self.controller = CoffeeMakerController("task_controller", self.robot, connect_server=self.server_widget.value)
-            
+
     def toggle_gripper(self):
         print("Toggle Gripper")
         if self.controller:
@@ -242,8 +244,8 @@ class ControlExtension(omni.ext.IExt):
         # base_prim = XFormPrim("/World/capsule")
         # base_world_pos, base_world_rot = base_prim.get_world_pose()
         # base_mat = get_transform_mat_from_pos_rot(base_world_pos, base_world_rot)
-
-        
+            
+    def yuanhong_debug(self):
         # target_mat = get_transform_mat_from_pos_rot([-0.083, 0.43895, 0], [0.5] * 4)  
         
         # rel_mat = target_mat * base_mat.GetInverse()
