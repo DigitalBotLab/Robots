@@ -1,3 +1,5 @@
+import omni.usd
+
 from omni.isaac.core.controllers import BaseController
 from omni.isaac.core.utils.stage import get_stage_units
 from omni.isaac.core.prims import XFormPrim
@@ -6,14 +8,20 @@ from .kinova import Kinova
 from .rmpflow_controller import RMPFlowController
 import numpy as np
 from .numpy_utils import *
-from .utils import regulate_degree
+from .utils import regulate_degree, get_transform_mat_from_pos_rot, generate_slerp_action_sequence
 
 import asyncio
 from .kinova_socket import KinovaClient
+from .coffee_config import kinova_action_config
 
 class CoffeeMakerController(BaseController):
     def __init__(self, name: str, kinova: Kinova, connect_server = False) -> None: 
         BaseController.__init__(self, name=name)
+
+        # env
+        self.stage = omni.usd.get_context().get_stage()
+
+        # event
         self.event = "move" # action event
         self.total_event_count = 0 # event time
         self.event_elapsed = 0 # event elapsed time
@@ -31,7 +39,8 @@ class CoffeeMakerController(BaseController):
         if connect_server:
             self.client = KinovaClient()
 
-    def add_event_to_pool(self, event: str, elapsed: int, ee_pos: np.ndarray, ee_ori: np.ndarray):
+    def add_event_to_pool(self, event: str, elapsed: int, 
+                          ee_pos: np.ndarray, ee_ori: np.ndarray, gripper_ratio: float = 0.0):
         self.event_pool.append([event, elapsed, ee_pos, ee_ori])
         
     def update_ee_target(self, pos, ori):
@@ -64,7 +73,64 @@ class CoffeeMakerController(BaseController):
         # send message
         message = " ".join([str(e) for e in joint_positions])
         self.client.send_message(message)
+
+    def apply_high_level_action(self, action_name: str = "go_home"):
+        """
+        Apply high-level action to the robot
+        """
+        action = kinova_action_config[action_name]
+        if action['base_prim'] is None:
+            base_world_pos, base_world_rot = self.robot.get_world_pose()
+        else:
+            base_prim = XFormPrim(action['base_prim'])
+            base_world_pos, base_world_rot = base_prim.get_world_pose()
         
+        base_mat = get_transform_mat_from_pos_rot(base_world_pos, base_world_rot)
+        print("base_mat", base_mat)
+        
+        for action_step in action['steps']:
+
+            step_type = action_step['action_type']
+            duration = action_step['duration']
+
+            if step_type == "move":
+                offset_mat = get_transform_mat_from_pos_rot(action_step['position'], action_step['orientation'])
+                print("offset_mat", offset_mat)
+
+                target_mat = offset_mat * base_mat 
+                print("target_mat", target_mat.ExtractTranslation(), target_mat.ExtractRotationQuat())
+
+                target_pos = target_mat.ExtractTranslation()
+                target_rot = target_mat.ExtractRotationQuat()
+
+                pos_array = np.array([target_pos[0], target_pos[1], target_pos[2]])
+                rot_array = np.array([target_rot.GetReal(), target_rot.GetImaginary()[0], target_rot.GetImaginary()[1], target_rot.GetImaginary()[2]])
+
+                self.add_event_to_pool(step_type, duration, pos_array, rot_array)
+            elif step_type in ["close", "open"]: 
+                self.add_event_to_pool(step_type, duration, None, None)
+            elif step_type == "slerp":
+                slerp_action_sequence = generate_slerp_action_sequence(
+                    action_step['position'], 
+                    action_step['orientation'],
+                    action_step['relative_rotation'], 
+                    sub_steps=action_step['sub_steps'],
+                    sub_duration=action_step['duration'] // action_step['sub_steps'],
+                    )
+
+                print("action_sequence", slerp_action_sequence)
+                for sub_action in slerp_action_sequence:
+                    offset_mat = get_transform_mat_from_pos_rot(sub_action['position'], sub_action['orientation'])
+                    target_mat = offset_mat * base_mat 
+                    target_pos = target_mat.ExtractTranslation()
+                    target_rot = target_mat.ExtractRotationQuat()
+
+                    pos_array = np.array([target_pos[0], target_pos[1], target_pos[2]])
+                    rot_array = np.array([target_rot.GetReal(), target_rot.GetImaginary()[0], target_rot.GetImaginary()[1], target_rot.GetImaginary()[2]])
+
+                    self.add_event_to_pool(sub_action['action_type'], sub_action['duration'], pos_array, rot_array)
+
+
     def forward(self):
         """
         Main function to update the robot
