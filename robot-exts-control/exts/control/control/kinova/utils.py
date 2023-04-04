@@ -37,6 +37,17 @@ def regulate_degree(degree: float, min_value: float = 0, max_value: float = 360,
     return degree
 
 
+def get_transform_mat_from_pos_rot(p, q):
+    """
+    Get transform matrix from position and rotation
+    """
+    trans = Gf.Transform()
+    rotation = Gf.Rotation(Gf.Quatd(float(q[0]), float(q[1]), float(q[2]), float(q[3])))
+    trans.SetRotation(rotation)
+    trans.SetTranslation(Gf.Vec3d(float(p[0]), float(p[1]), float(p[2])))
+    return trans.GetMatrix()
+
+
 def get_prim_pickup_transform(stage, prim_path: str, offset: Gf.Vec3d):
     """
     Get the pickup transform of the prim with offset"""
@@ -62,23 +73,3 @@ def get_prim_pickup_transform(stage, prim_path: str, offset: Gf.Vec3d):
 
     return eye_pos, m.ExtractRotationQuat()
 
-def look_at_matrix(eye, target, up):
-    """
-    Look at matrix
-    ::params: 
-        eye: Gf.Vec3d
-        target: Gf.Vec3d
-        up: Gf.Vec3d
-    """
-    zaxis = (target - eye)/(target - eye).Normalize()
-    xaxis = Gf.Cross(up, zaxis)
-    xaxis = xaxis / xaxis.Normalize()
-    yaxis = Gf.Cross(zaxis, xaxis)
-    yaxis = yaxis / yaxis.Normalize()
-    m = Gf.Matrix4d()
-    m.SetRow(0, Gf.Vec4d(xaxis[0], yaxis[0], zaxis[0], 0.0))
-    m.SetRow(1, Gf.Vec4d(xaxis[1], yaxis[1], zaxis[1], 0.0))
-    m.SetRow(2, Gf.Vec4d(xaxis[2], yaxis[2], zaxis[2], 0.0))
-    m.SetRow(3, Gf.Vec4d(0.0, 0.0, 0.0, 1.0))
-    m = m * Gf.Matrix4d().SetTranslate(-eye)
-    return m
