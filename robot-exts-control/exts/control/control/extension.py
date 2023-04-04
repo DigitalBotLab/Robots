@@ -228,10 +228,10 @@ class ControlExtension(omni.ext.IExt):
             self.controller.apply_high_level_action("open_coffee_machine_handle")
     
     def debug2(self):
-        print("debug2")
-        if self.robot:
-            # self.controller.apply_high_level_action("pick_up_capsule")
-            self.controller.apply_high_level_action("pick_up_papercup")
+        # print("debug2")
+        # if self.robot:
+        #     # self.controller.apply_high_level_action("pick_up_capsule")
+        #     self.controller.apply_high_level_action("pick_up_papercup")
             
 
 
@@ -250,3 +250,7 @@ class ControlExtension(omni.ext.IExt):
         # print("base_mat:", base_mat)
         # print("target_mat:", target_mat)
         # print("rel_mat:", rel_mat.ExtractTranslation(), rel_mat.ExtractRotationQuat())
+
+        pass
+
+        

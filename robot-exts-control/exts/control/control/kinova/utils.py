@@ -4,11 +4,34 @@ import numpy as np
 from pathlib import Path
 import omni.kit.app
 
-from pxr import UsdGeom, Gf, Usd
+import omni.usd
+from pxr import UsdGeom, Gf, Usd, UsdPhysics
 
 EXTENSION_FOLDER_PATH = str(Path(
     omni.kit.app.get_app().get_extension_manager().get_extension_path_by_module(__name__)
 ).resolve())
+
+    
+def fix_damping_and_stiffness(kinova_path = "/World/kinova_gen3_7_hand/kinova", stiffness = 1e3, damping = 1e6):
+        print("fixing damping and stiffness")
+        # stiffness_name = "drive:angular:physics:stiffness"
+        # damping_name = "drive:angular:physics:damping"
+        stage = omni.usd.get_context().get_stage()
+        joint_prim_paths = [
+            "/base_link/Actuator1",
+            "/shoulder_link/Actuator2",
+            "/half_arm_1_link/Actuator3",
+            "/half_arm_2_link/Actuator4",
+            "/forearm_link/Actuator5",
+            "/spherical_wrist_1_link/Actuator6",
+            "/spherical_wrist_2_link/Actuator7",
+        ]
+
+        for joint_prim_path in joint_prim_paths:
+            joint_prim = stage.GetPrimAtPath(kinova_path + joint_prim_path)
+            joint_driver = UsdPhysics.DriveAPI.Get(joint_prim, "angular")
+            joint_driver.GetStiffnessAttr().Set(stiffness)
+            joint_driver.GetDampingAttr().Set(damping)
 
 def process_policy_config(mg_config_file):
     """
