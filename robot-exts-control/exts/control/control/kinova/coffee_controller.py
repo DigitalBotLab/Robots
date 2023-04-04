@@ -8,7 +8,7 @@ from .kinova import Kinova
 from .rmpflow_controller import RMPFlowController
 import numpy as np
 from .numpy_utils import *
-from .utils import regulate_degree, get_transform_mat_from_pos_rot
+from .utils import regulate_degree, get_transform_mat_from_pos_rot, generate_slerp_action_sequence
 
 import asyncio
 from .kinova_socket import KinovaClient
@@ -107,8 +107,28 @@ class CoffeeMakerController(BaseController):
                 rot_array = np.array([target_rot.GetReal(), target_rot.GetImaginary()[0], target_rot.GetImaginary()[1], target_rot.GetImaginary()[2]])
 
                 self.add_event_to_pool(step_type, duration, pos_array, rot_array)
-            else: # close or open 
+            elif step_type in ["close", "open"]: 
                 self.add_event_to_pool(step_type, duration, None, None)
+            elif step_type == "slerp":
+                slerp_action_sequence = generate_slerp_action_sequence(
+                    action_step['position'], 
+                    action_step['orientation'],
+                    action_step['relative_rotation'], 
+                    sub_steps=action_step['sub_steps'],
+                    sub_duration=action_step['duration'] // action_step['sub_steps'],
+                    )
+
+                print("action_sequence", slerp_action_sequence)
+                for sub_action in slerp_action_sequence:
+                    offset_mat = get_transform_mat_from_pos_rot(sub_action['position'], sub_action['orientation'])
+                    target_mat = offset_mat * base_mat 
+                    target_pos = target_mat.ExtractTranslation()
+                    target_rot = target_mat.ExtractRotationQuat()
+
+                    pos_array = np.array([target_pos[0], target_pos[1], target_pos[2]])
+                    rot_array = np.array([target_rot.GetReal(), target_rot.GetImaginary()[0], target_rot.GetImaginary()[1], target_rot.GetImaginary()[2]])
+
+                    self.add_event_to_pool(sub_action['action_type'], sub_action['duration'], pos_array, rot_array)
 
 
     def forward(self):

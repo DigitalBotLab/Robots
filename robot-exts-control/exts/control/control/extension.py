@@ -230,7 +230,9 @@ class ControlExtension(omni.ext.IExt):
     def debug2(self):
         print("debug2")
         if self.robot:
-            self.controller.apply_high_level_action("pick_up_capsule")
+            # self.controller.apply_high_level_action("pick_up_capsule")
+            self.controller.apply_high_level_action("pick_up_papercup")
+            
 
 
         # from omni.isaac.core.prims import XFormPrim

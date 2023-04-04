@@ -73,3 +73,28 @@ def get_prim_pickup_transform(stage, prim_path: str, offset: Gf.Vec3d):
 
     return eye_pos, m.ExtractRotationQuat()
 
+def generate_slerp_action_sequence(ori_pos, ori_quat, rel_rot, sub_steps = 5, sub_duration = 50):
+    """
+    Generate slerp action sequence from relative position and rotation
+    """
+    slerp_action_sequence = []
+    ori_pos = Gf.Vec3d(ori_pos[0], ori_pos[1], ori_pos[2])
+    rel_quat = Gf.Quatd(float(rel_rot[0]), float(rel_rot[1]), float(rel_rot[2]), float(rel_rot[3])).GetNormalized()
+    ori_quat = Gf.Quatd(float(ori_quat[0]), float(ori_quat[1]), float(ori_quat[2]), float(ori_quat[3])).GetNormalized()
+    identity_quat = Gf.Quatd(1, 0, 0, 0)
+    for i in range(sub_steps):
+        t = (i + 1) / sub_steps
+        
+        quat_rel = Gf.Slerp(t, identity_quat, rel_quat)
+        p = (quat_rel * Gf.Quatd(0, ori_pos) * quat_rel.GetInverse()).GetImaginary()
+        q = quat_rel * ori_quat
+        slerp_action_sequence.append(
+            {
+                'action_type': 'move',
+                'duration': sub_duration,
+                'position': [p[0], p[1], p[2]],
+                'orientation': [q.GetReal(), q.GetImaginary()[0], q.GetImaginary()[1], q.GetImaginary()[2]]
+            },
+        )
+
+    return slerp_action_sequence
