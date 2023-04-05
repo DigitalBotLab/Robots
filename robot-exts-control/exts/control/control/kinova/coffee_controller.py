@@ -64,7 +64,7 @@ class CoffeeMakerController(BaseController):
         """
         # get joint positions and gripper degree
         all_positions = self.robot.get_joint_positions()
-        gripper_degree = regulate_degree(all_positions[7], indegree=False)
+        gripper_degree = all_positions[7] / 0.8757
         joint_positions = [regulate_degree(e, indegree=False) for e in all_positions[:7]]
         joint_positions = joint_positions + [gripper_degree]
 
