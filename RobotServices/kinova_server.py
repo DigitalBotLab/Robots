@@ -53,8 +53,8 @@ class KinovaUDPHandler(socketserver.BaseRequestHandler):
                 # gripper.Cleanup()
 
 
-                # print("go to position", joint_positions[7])
-                success &= GripperCommand(base, interp(joint_positions[7], [30, 360], [0, 1]))
+                print("go to position", joint_positions[7])
+                success &= GripperCommand(base, min(max(0, joint_positions[7]), 1))
                 # gripper.Cleanup()
 
                 return success

@@ -97,7 +97,7 @@ kinova_action_config = {
                 'sub_steps': 10,
                 'position': [0, -0.28, 0],
                 'orientation': [-0.5, 0.5, 0.5, 0.5],
-                'relative_rotation': [0.7071, -0.7071, 0, 0],
+                'relative_rotation': [0.7372773, -0.6755902, 0, 0],
             },
            
         ]
