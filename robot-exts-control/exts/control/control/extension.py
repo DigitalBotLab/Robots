@@ -227,7 +227,7 @@ class ControlExtension(omni.ext.IExt):
     def debug(self):
         print("debug")
         if self.robot:
-            self.controller.apply_high_level_action("open_coffee_machine_handle")
+            self.controller.apply_high_level_action("move_capsule_to_coffee_machine")
     
     def debug2(self):
         print("debug2")

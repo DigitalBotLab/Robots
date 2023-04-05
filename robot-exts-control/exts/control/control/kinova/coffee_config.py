@@ -102,4 +102,22 @@ kinova_action_config = {
            
         ]
     },
+
+    "move_capsule_to_coffee_machine": {
+        'base_prim': '/World/Keurig_1_5_add_hold/Xform',
+        'steps':[
+            {
+                'action_type': 'move',
+                'duration': 200,
+                'position': [0, -0.3, 0.01],
+                'orientation': [0, 0,0.7071, 0.7071],
+            },
+            {
+                'action_type': 'move',
+                'duration': 200,
+                'position': [0, -0.2, 0.01],
+                'orientation':  [0, 0,0.7071, 0.7071],
+            },           
+        ]
+    },
 }
