@@ -7,6 +7,7 @@ from omni.isaac.core.utils.nucleus import get_assets_root_path
 from omni.isaac.core.utils.stage import add_reference_to_stage, get_stage_units
 
 import carb
+from pxr import UsdPhysics
 from .kinova_gripper import KinovaGripper
 
 class Kinova(Robot):
@@ -23,6 +24,7 @@ class Kinova(Robot):
         gripper_closed_position: Optional[np.ndarray] = None,
         deltas: Optional[np.ndarray] = None,
     ) -> None:
+        self.prim_path = prim_path
         prim = get_prim_at_path(prim_path)
         assert prim.IsValid(), "Please load Kinova into the environment first"
         self._end_effector = None
@@ -42,7 +44,7 @@ class Kinova(Robot):
                             ]
         
         gripper_open_position = np.zeros(6)
-        gripper_closed_position = np.array([0.8757, -0.8757, 0.8757, -0.8757, -0.8757, 0.8757]) * 0.6
+        gripper_closed_position = np.array([0.8757, -0.8757, 0.8757, -0.8757, -0.8757, 0.8757]) * 0.8
         deltas = None # -gripper_closed_position / 5.0
 
         self._gripper = KinovaGripper(
@@ -92,6 +94,7 @@ class Kinova(Robot):
         """[summary]
         """
         super().post_reset()
+
         self._gripper.post_reset()
 
         for i in range(self.gripper._gripper_joint_num):
@@ -100,3 +103,26 @@ class Kinova(Robot):
             )
 
         return
+    
+    def fix_damping_and_stiffness(prim_path = "/World/kinova_gen3_7_hand/kinova", stiffness = 1e3, damping = 1e6):
+            print("fixing damping and stiffness")
+            # stiffness_name = "drive:angular:physics:stiffness"
+            # damping_name = "drive:angular:physics:damping"
+
+            joint_prim_paths = [
+                "/base_link/Actuator1",
+                "/shoulder_link/Actuator2",
+                "/half_arm_1_link/Actuator3",
+                "/half_arm_2_link/Actuator4",
+                "/forearm_link/Actuator5",
+                "/spherical_wrist_1_link/Actuator6",
+                "/spherical_wrist_2_link/Actuator7",
+            ]
+
+            for joint_prim_path in joint_prim_paths:
+                joint_prim = get_prim_at_path(prim_path + joint_prim_path)
+                joint_driver = UsdPhysics.DriveAPI.Get(joint_prim, "angular")
+                joint_driver.GetStiffnessAttr().Set(stiffness)
+                joint_driver.GetDampingAttr().Set(damping)
+
+                

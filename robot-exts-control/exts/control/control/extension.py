@@ -42,7 +42,7 @@ class ControlExtension(omni.ext.IExt):
             with ui.VStack():
                 # ui.Button("Set Robot", height = 20, clicked_fn=self.set_robot)
                 ui.Line(height = 2)
-                ui.Button("Register Physics Event", height = 20, clicked_fn=self.register_physics_event)
+                ui.Button("Register Physics Event", height = 50, clicked_fn=self.register_physics_event)
                 with ui.HStack(height = 20): 
                     ui.Label("Robot Prim Path:", width = 200)
                     self.robot_path_widget = ui.StringField(width = 300)
@@ -107,7 +107,8 @@ class ControlExtension(omni.ext.IExt):
                 ui.Line(height = 2)
                 ui.Button("Debug", height = 20, clicked_fn = self.debug)
                 ui.Button("yh Debug", height = 20, clicked_fn = self.yuanhong_debug)
-
+                ui.Button("Debug2", height = 20, clicked_fn = self.debug2)
+                
 
 
         # robot
@@ -225,45 +226,33 @@ class ControlExtension(omni.ext.IExt):
 
     def debug(self):
         print("debug")
-        # if self.robot:
-        #     print("robot get pos: ", self.robot.get_joint_positions())
-
-        # # print("ui bool:", self.server_widget.value)
-
-        #     trans = self.robot.end_effector.get_world_pose()
-        #     print("trans:", trans)
-
-        from .kinova.utils import get_prim_pickup_transform
-        # from .kinova.numpy_utils import quat_mul
-        from pxr import Gf
-        pos1, rot1 = get_prim_pickup_transform(omni.usd.get_context().get_stage(), 
-                                                  "/World/capsule", Gf.Vec3d(-0.15, 0, 0)) 
-        
         if self.robot:
-            # pos = self.robot.end_effector.get_world_pose()[0]  
-            pos = np.array([0.45666, 0.0, 0.43371])
-            rot_quat = self.robot.end_effector.get_world_pose()[1] # w, x, y, z
-            for i in range(len(rot_quat)):
-                rot_quat[i] = 0.5
-            # print("rot_quat[0], rot_quat[1], rot_quat[2], rot_quat[3]", rot_quat[0], rot_quat[1], rot_quat[2], rot_quat[3])
-            rot_quat = Gf.Quatf(rot_quat[0].item(), rot_quat[1].item(), rot_quat[2].item(), rot_quat[3].item())
-            quat = rot1 * rot_quat
-            quat_array = np.array([quat.GetReal(), quat.GetImaginary()[0], quat.GetImaginary()[1], quat.GetImaginary()[2]])
-            print("target trans:", pos1, quat_array)
+            self.controller.apply_high_level_action("open_coffee_machine_handle")
+    
+    def debug2(self):
+        print("debug2")
+        if self.robot:
+            # self.controller.apply_high_level_action("pick_up_capsule")
+            self.controller.apply_high_level_action("pick_up_papercup")
+            
 
 
-            self.controller.add_event_to_pool("move", 100, pos, quat_array)
-            self.controller.add_event_to_pool("move", 200, np.array([pos1[0], pos1[1], pos[2]]), quat_array)
-            self.controller.add_event_to_pool("move", 100, np.array([pos1[0], pos1[1], pos1[2] + 0.1]), quat_array)
-            self.controller.add_event_to_pool("move", 100, np.array([pos1[0], pos1[1], pos1[2] + 0.01]), quat_array)
-            self.controller.add_event_to_pool("close", 150, None, None)
-            self.controller.add_event_to_pool("move", 200, np.array([pos1[0], pos1[1], pos1[2] + 0.2]), quat_array)
-            
-            rot_y = Gf.Quatd(0, 1, 0, 0)
-            quat = rot_y * quat
-            quat_array = np.array([quat.GetReal(), quat.GetImaginary()[0], quat.GetImaginary()[1], quat.GetImaginary()[2]])
-            
-            self.controller.add_event_to_pool("move", 200, np.array([pos1[0], pos1[1], pos1[2] + 0.2]), quat_array)
+        # from omni.isaac.core.prims import XFormPrim
+        # from .kinova.utils import get_transform_mat_from_pos_rot
+
+        # stage = omni.usd.get_context().get_stage()
+        # base_prim = XFormPrim("/World/capsule")
+        # base_world_pos, base_world_rot = base_prim.get_world_pose()
+        # base_mat = get_transform_mat_from_pos_rot(base_world_pos, base_world_rot)
             
     def yuanhong_debug(self):
+        # target_mat = get_transform_mat_from_pos_rot([-0.083, 0.43895, 0], [0.5] * 4)  
+        
+        # rel_mat = target_mat * base_mat.GetInverse()
+        # print("base_mat:", base_mat)
+        # print("target_mat:", target_mat)
+        # print("rel_mat:", rel_mat.ExtractTranslation(), rel_mat.ExtractRotationQuat())
+
         pass
+
+        

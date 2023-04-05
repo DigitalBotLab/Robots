@@ -4,11 +4,34 @@ import numpy as np
 from pathlib import Path
 import omni.kit.app
 
-from pxr import UsdGeom, Gf, Usd
+import omni.usd
+from pxr import UsdGeom, Gf, Usd, UsdPhysics
 
 EXTENSION_FOLDER_PATH = str(Path(
     omni.kit.app.get_app().get_extension_manager().get_extension_path_by_module(__name__)
 ).resolve())
+
+    
+def fix_damping_and_stiffness(kinova_path = "/World/kinova_gen3_7_hand/kinova", stiffness = 1e3, damping = 1e6):
+        print("fixing damping and stiffness")
+        # stiffness_name = "drive:angular:physics:stiffness"
+        # damping_name = "drive:angular:physics:damping"
+        stage = omni.usd.get_context().get_stage()
+        joint_prim_paths = [
+            "/base_link/Actuator1",
+            "/shoulder_link/Actuator2",
+            "/half_arm_1_link/Actuator3",
+            "/half_arm_2_link/Actuator4",
+            "/forearm_link/Actuator5",
+            "/spherical_wrist_1_link/Actuator6",
+            "/spherical_wrist_2_link/Actuator7",
+        ]
+
+        for joint_prim_path in joint_prim_paths:
+            joint_prim = stage.GetPrimAtPath(kinova_path + joint_prim_path)
+            joint_driver = UsdPhysics.DriveAPI.Get(joint_prim, "angular")
+            joint_driver.GetStiffnessAttr().Set(stiffness)
+            joint_driver.GetDampingAttr().Set(damping)
 
 def process_policy_config(mg_config_file):
     """
@@ -37,6 +60,17 @@ def regulate_degree(degree: float, min_value: float = 0, max_value: float = 360,
     return degree
 
 
+def get_transform_mat_from_pos_rot(p, q):
+    """
+    Get transform matrix from position and rotation
+    """
+    trans = Gf.Transform()
+    rotation = Gf.Rotation(Gf.Quatd(float(q[0]), float(q[1]), float(q[2]), float(q[3])))
+    trans.SetRotation(rotation)
+    trans.SetTranslation(Gf.Vec3d(float(p[0]), float(p[1]), float(p[2])))
+    return trans.GetMatrix()
+
+
 def get_prim_pickup_transform(stage, prim_path: str, offset: Gf.Vec3d):
     """
     Get the pickup transform of the prim with offset"""
@@ -62,23 +96,28 @@ def get_prim_pickup_transform(stage, prim_path: str, offset: Gf.Vec3d):
 
     return eye_pos, m.ExtractRotationQuat()
 
-def look_at_matrix(eye, target, up):
+def generate_slerp_action_sequence(ori_pos, ori_quat, rel_rot, sub_steps = 5, sub_duration = 50):
     """
-    Look at matrix
-    ::params: 
-        eye: Gf.Vec3d
-        target: Gf.Vec3d
-        up: Gf.Vec3d
+    Generate slerp action sequence from relative position and rotation
     """
-    zaxis = (target - eye)/(target - eye).Normalize()
-    xaxis = Gf.Cross(up, zaxis)
-    xaxis = xaxis / xaxis.Normalize()
-    yaxis = Gf.Cross(zaxis, xaxis)
-    yaxis = yaxis / yaxis.Normalize()
-    m = Gf.Matrix4d()
-    m.SetRow(0, Gf.Vec4d(xaxis[0], yaxis[0], zaxis[0], 0.0))
-    m.SetRow(1, Gf.Vec4d(xaxis[1], yaxis[1], zaxis[1], 0.0))
-    m.SetRow(2, Gf.Vec4d(xaxis[2], yaxis[2], zaxis[2], 0.0))
-    m.SetRow(3, Gf.Vec4d(0.0, 0.0, 0.0, 1.0))
-    m = m * Gf.Matrix4d().SetTranslate(-eye)
-    return m
+    slerp_action_sequence = []
+    ori_pos = Gf.Vec3d(ori_pos[0], ori_pos[1], ori_pos[2])
+    rel_quat = Gf.Quatd(float(rel_rot[0]), float(rel_rot[1]), float(rel_rot[2]), float(rel_rot[3])).GetNormalized()
+    ori_quat = Gf.Quatd(float(ori_quat[0]), float(ori_quat[1]), float(ori_quat[2]), float(ori_quat[3])).GetNormalized()
+    identity_quat = Gf.Quatd(1, 0, 0, 0)
+    for i in range(sub_steps):
+        t = (i + 1) / sub_steps
+        
+        quat_rel = Gf.Slerp(t, identity_quat, rel_quat)
+        p = (quat_rel * Gf.Quatd(0, ori_pos) * quat_rel.GetInverse()).GetImaginary()
+        q = quat_rel * ori_quat
+        slerp_action_sequence.append(
+            {
+                'action_type': 'move',
+                'duration': sub_duration,
+                'position': [p[0], p[1], p[2]],
+                'orientation': [q.GetReal(), q.GetImaginary()[0], q.GetImaginary()[1], q.GetImaginary()[2]]
+            },
+        )
+
+    return slerp_action_sequence
