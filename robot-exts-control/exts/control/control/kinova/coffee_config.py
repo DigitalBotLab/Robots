@@ -13,36 +13,36 @@ kinova_action_config = {
         ]
     },
     "pick_up_capsule": {
-        'base_prim': '/World/capsule',
+        'base_prim': '/World/k_cup',
         'steps':[
             {
                 'action_type': 'move',
                 'duration': 200,
-                'position': [0, 0.3, -0.15],
-                'orientation': [1.0, 0.0, 0.0, 0.0],
+                'position': [-0.12, 0.0, 0.3],
+                'orientation': [0.5, 0.5, 0.5, 0.5],
             },
             {
                 'action_type': 'move',
-                'duration': 200,
-                'position': [0, 0.03, -0.15],
-                'orientation': [1.0, 0.0, 0.0, 0.0],
+                'duration': 100,
+                'position': [-0.12, 0.0, 0.1],
+                'orientation': [0.5, 0.5, 0.5, 0.5],
+            },
+            {
+                'action_type': 'move',
+                'duration': 100,
+                'position': [-0.12, 0.0, 0.02],
+                'orientation': [0.5, 0.5, 0.5, 0.5],
             },
             {
                 'action_type': 'close',
                 'duration': 100,
-                'gripper_ratio': 100,
+                'ratio': 0.6,
             },
             {
                 'action_type': 'move',
                 'duration': 100,
-                'position': [0, 0.2, -0.15],
-                'orientation': [1.0, 0.0, 0.0, 0.0],
-            },
-            {
-                'action_type': 'move',
-                'duration': 100,
-                'position': [0, 0.2, -0.15],
-                'orientation': [0.0, 0.0, 0.0, 1.0],
+                'position': [-0.12, 0.0, 0.3],
+                'orientation': [0.5, 0.5, 0.5, 0.5],
             },
         ]
     },
@@ -72,7 +72,7 @@ kinova_action_config = {
     },
 
     "open_coffee_machine_handle": {
-        'base_prim': '/World/Keurig_1_5_add_hold/Handle',
+        'base_prim': '/World/Keurig_1_5_add_hold/XformHandle',
         'steps':[
             {
                 'action_type': 'move',
@@ -83,28 +83,39 @@ kinova_action_config = {
             {
                 'action_type': 'move',
                 'duration': 100,
-                'position': [0, -0.28, 0],
+                'position': [0, -0.29, 0],
                 'orientation': [-0.5, 0.5, 0.5, 0.5],
             },
             {
                 'action_type': 'close',
                 'duration': 100,
-                'gripper_ratio': 100,
+                'ratio': 0.8,
             },
             {
                 'action_type': 'slerp',
-                'duration': 600,
+                'duration': 300,
                 'sub_steps': 10,
                 'position': [0, -0.28, 0],
                 'orientation': [-0.5, 0.5, 0.5, 0.5],
                 'relative_rotation': [0.7372773, -0.6755902, 0, 0],
+            },
+            {
+                'action_type': 'close', #open
+                'duration': 100,
+                'ratio': 0.0,
+            },
+            {
+                'action_type': 'move',
+                'duration': 200,
+                'position': [0.3, -0.5, 0.3],
+                'orientation': [0, 0.7071, 0.7071, 0],
             },
            
         ]
     },
 
     "move_capsule_to_coffee_machine": {
-        'base_prim': '/World/Keurig_1_5_add_hold/Xform',
+        'base_prim': '/World/Keurig_1_5_add_hold/XformHandle',
         'steps':[
             {
                 'action_type': 'move',
@@ -117,7 +128,12 @@ kinova_action_config = {
                 'duration': 200,
                 'position': [0, -0.2, 0.01],
                 'orientation':  [0, 0,0.7071, 0.7071],
-            },           
+            },     
+            {
+                'action_type': 'open', #open
+                'duration': 100,
+                'ratio': 0.0,
+            },      
         ]
     },
 }

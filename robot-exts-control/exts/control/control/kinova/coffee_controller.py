@@ -41,8 +41,8 @@ class CoffeeMakerController(BaseController):
         self.sending_message = False
 
     def add_event_to_pool(self, event: str, elapsed: int, 
-                          ee_pos: np.ndarray, ee_ori: np.ndarray, gripper_ratio: float = 0.0):
-        self.event_pool.append([event, elapsed, ee_pos, ee_ori])
+                          ee_pos: np.ndarray, ee_ori: np.ndarray, gripper_ratio: float = 1.0):
+        self.event_pool.append([event, elapsed, ee_pos, ee_ori, gripper_ratio])
         
     def update_ee_target(self, pos, ori):
         """
@@ -113,7 +113,8 @@ class CoffeeMakerController(BaseController):
 
                 self.add_event_to_pool(step_type, duration, pos_array, rot_array)
             elif step_type in ["close", "open"]: 
-                self.add_event_to_pool(step_type, duration, None, None)
+                gripper_ratio = action_step['ratio']
+                self.add_event_to_pool(step_type, duration, None, None, gripper_ratio)
             elif step_type == "slerp":
                 slerp_action_sequence = generate_slerp_action_sequence(
                     action_step['position'], 
@@ -145,15 +146,18 @@ class CoffeeMakerController(BaseController):
             if self.event_elapsed <= 0:
                 if self.connect_server:
                     self.synchronize_robot()
-                event, elapsed, ee_pos, ee_ori = self.event_pool.pop(0)
-                print("event, elapsed, ee_pos, ee_ori ", event, elapsed, ee_pos, ee_ori )
+                event, elapsed, ee_pos, ee_ori, gripper_ratio = self.event_pool.pop(0)
+                print("event, elapsed, ee_pos, ee_ori ", event, elapsed, ee_pos, ee_ori, gripper_ratio)
                 self.update_event(event)
                 if self.event == "move":
                     self.update_ee_target(ee_pos, ee_ori)
+                elif self.event == "close":
+                    self.gripper.set_close_ratio(gripper_ratio)
+                    
                 self.event_elapsed = elapsed
         else:
             if self.connect_server:
-                if self.total_event_count % 180 == 0:
+                if self.total_event_count % (60 * 5) == 0:
                     self.synchronize_robot()
 
         # print("coffee control event", self.event, self.event_elapsed)

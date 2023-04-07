@@ -96,7 +96,9 @@ def get_prim_pickup_transform(stage, prim_path: str, offset: Gf.Vec3d):
 
     return eye_pos, m.ExtractRotationQuat()
 
-def generate_slerp_action_sequence(ori_pos, ori_quat, rel_rot, sub_steps = 5, sub_duration = 50):
+def generate_slerp_action_sequence(ori_pos, ori_quat, rel_rot, 
+                                   sub_steps = 5, sub_duration = 50, 
+                                   slerp_last = True, slerp_offset = Gf.Vec3d(0, -0.001, 0)):
     """
     Generate slerp action sequence from relative position and rotation
     """
@@ -105,11 +107,11 @@ def generate_slerp_action_sequence(ori_pos, ori_quat, rel_rot, sub_steps = 5, su
     rel_quat = Gf.Quatd(float(rel_rot[0]), float(rel_rot[1]), float(rel_rot[2]), float(rel_rot[3])).GetNormalized()
     ori_quat = Gf.Quatd(float(ori_quat[0]), float(ori_quat[1]), float(ori_quat[2]), float(ori_quat[3])).GetNormalized()
     identity_quat = Gf.Quatd(1, 0, 0, 0)
-    for i in range(sub_steps):
-        t = (i + 1) / sub_steps
+    for i in range(1, sub_steps):
+        t = (i + int(slerp_last)) / sub_steps
         
         quat_rel = Gf.Slerp(t, identity_quat, rel_quat)
-        p = (quat_rel * Gf.Quatd(0, ori_pos) * quat_rel.GetInverse()).GetImaginary()
+        p = (quat_rel * Gf.Quatd(0, ori_pos + slerp_offset * i) * quat_rel.GetInverse()).GetImaginary()
         q = quat_rel * ori_quat
         slerp_action_sequence.append(
             {

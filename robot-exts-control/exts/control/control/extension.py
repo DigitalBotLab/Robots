@@ -94,13 +94,13 @@ class ControlExtension(omni.ext.IExt):
                         read_only= True
                     )
 
-                with ui.HStack(height = 20):
-                    self.ee_ori_euler_read_widget = CustomMultifieldWidget(
-                        label="EE Euler Rot(read only):",
-                        sublabels=["x", "y", "z"],
-                        default_vals=[0, 0, 0],
-                        read_only= True
-                    )
+                # with ui.HStack(height = 20):
+                #     self.ee_ori_euler_read_widget = CustomMultifieldWidget(
+                #         label="EE Euler Rot(read only):",
+                #         sublabels=["x", "y", "z"],
+                #         default_vals=[0, 0, 0],
+                #         read_only= True
+                #     )
                 
 
                 ui.Spacer(height = 9)
@@ -219,14 +219,15 @@ class ControlExtension(omni.ext.IExt):
         self.ee_pos_read_widget.update(self.robot.end_effector.get_world_pose()[0])
         rot_quat = self.robot.end_effector.get_world_pose()[1]
         self.ee_ori_quat_read_widget.update(rot_quat)
-        rot_euler = quat_to_euler_angles(rot_quat, degrees=True)
+        # rot_euler = quat_to_euler_angles(rot_quat, degrees=True)
         # print("rot_euler:", rot_euler)
-        self.ee_ori_euler_read_widget.update(rot_euler[0])
+        # self.ee_ori_euler_read_widget.update(rot_euler[0])
 
 
     def debug(self):
         print("debug")
         if self.robot:
+            # self.controller.apply_high_level_action("open_coffee_machine_handle")
             self.controller.apply_high_level_action("move_capsule_to_coffee_machine")
     
     def debug2(self):
