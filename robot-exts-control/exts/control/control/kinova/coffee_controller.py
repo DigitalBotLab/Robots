@@ -144,8 +144,6 @@ class CoffeeMakerController(BaseController):
         # update event
         if len(self.event_pool) > 0:
             if self.event_elapsed <= 0:
-                if self.connect_server:
-                    self.synchronize_robot()
                 event, elapsed, ee_pos, ee_ori, gripper_ratio = self.event_pool.pop(0)
                 print("event, elapsed, ee_pos, ee_ori ", event, elapsed, ee_pos, ee_ori, gripper_ratio)
                 self.update_event(event)
@@ -153,11 +151,15 @@ class CoffeeMakerController(BaseController):
                     self.update_ee_target(ee_pos, ee_ori)
                 elif self.event == "close":
                     self.gripper.set_close_ratio(gripper_ratio)
-                    
+                
+
+                if self.connect_server:
+                    self.synchronize_robot()
+
                 self.event_elapsed = elapsed
         else:
             if self.connect_server:
-                if self.total_event_count % (60 * 5) == 0:
+                if self.total_event_count % (60 * 3) == 0:
                     self.synchronize_robot()
 
         # print("coffee control event", self.event, self.event_elapsed)

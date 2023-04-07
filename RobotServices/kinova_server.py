@@ -17,6 +17,8 @@ class KinovaUDPHandler(socketserver.BaseRequestHandler):
     there is no connection the client address must be given explicitly
     when sending data back via sendto().
     """
+    def setup(self):
+        self.joint_target = 0.0
 
     def handle(self):
         # obtain message from Isaac Sim
@@ -32,6 +34,7 @@ class KinovaUDPHandler(socketserver.BaseRequestHandler):
             success = "succeed" if self.control_robot(joint_positions) else "failed"
             response = f"The action {success}"
         socket.sendto(response.encode('utf-8'), self.client_address)
+
 
     def process_data(self, data: str):
         """
@@ -52,9 +55,13 @@ class KinovaUDPHandler(socketserver.BaseRequestHandler):
                 success &= angular_action_movement(base, joint_positions[:7])
                 # gripper.Cleanup()
 
-
                 print("go to position", joint_positions[7])
-                success &= GripperCommand(base, min(max(0, joint_positions[7]), 1))
+                joint_target = min(max(0, joint_positions[7]), 1)
+
+                if joint_target != self.joint_target:
+                    self.joint_target = joint_target
+                    success &= GripperCommand(base, joint_target)
+
                 # gripper.Cleanup()
 
                 return success
