@@ -6,7 +6,7 @@ kinova_action_config = {
         'steps':[
             {
                 'action_type': 'move',
-                'duration': 100,
+                'duration': 200,
                 'position': [0.45666, 0.0, 0.43371],
                 'orientation': [0.5, 0.5, 0.5, 0.5], # wxyz
             }
@@ -17,30 +17,30 @@ kinova_action_config = {
         'steps':[
             {
                 'action_type': 'move',
-                'duration': 200,
+                'duration': 300,
                 'position': [-0.12, 0.0, 0.3],
                 'orientation': [0.5, 0.5, 0.5, 0.5],
             },
             {
                 'action_type': 'move',
-                'duration': 100,
+                'duration': 60,
                 'position': [-0.12, 0.0, 0.1],
                 'orientation': [0.5, 0.5, 0.5, 0.5],
             },
             {
                 'action_type': 'move',
-                'duration': 100,
+                'duration': 60,
                 'position': [-0.12, 0.0, 0.03],
                 'orientation': [0.5, 0.5, 0.5, 0.5],
             },
             {
                 'action_type': 'close',
-                'duration': 100,
+                'duration': 30,
                 'ratio': 0.6,
             },
             {
                 'action_type': 'move',
-                'duration': 100,
+                'duration': 60,
                 'position': [-0.12, 0.0, 0.3],
                 'orientation': [0.5, 0.5, 0.5, 0.5],
             },
@@ -121,25 +121,31 @@ kinova_action_config = {
         'steps':[
             {
                 'action_type': 'move',
-                'duration': 200,
-                'position': [0, -0.3, 0.025],
+                'duration': 100,
+                'position': [0, -0.3, 0.02],
                 'orientation': [0, 0, 0.7071, 0.7071],
             },
             {
                 'action_type': 'move',
-                'duration': 100,
-                'position': [0, -0.18, 0.025],
+                'duration': 60,
+                'position': [0, -0.212, 0.02],
                 'orientation':  [0, 0, 0.7071, 0.7071],
             },     
             {
                 'action_type': 'close', #open
-                'duration': 100,
+                'duration': 60,
                 'ratio': 0.05,
             },      
             {
                 'action_type': 'move',
                 'duration': 100,
                 'position': [0, -0.3, 0.025],
+                'orientation': [0, 0, 0.7071, 0.7071],
+            },
+            {
+                'action_type': 'move',
+                'duration': 100,
+                'position': [0, -0.2, 0.4],
                 'orientation': [0, 0, 0.7071, 0.7071],
             },
         ]
@@ -156,14 +162,14 @@ kinova_action_config = {
             {
                 'action_type': 'move',
                 'duration': 200,
-                'position': [0, 0, 0.25],
+                'position': [0, 0, 0.27],
                 'orientation': [0, 0.7071, 0.7071, 0],
             },
             {
                 'action_type': 'slerp',
                 'duration': 140,
                 'sub_steps': 7,
-                'position': [0, 0, 0.25],
+                'position': [0, 0, 0.27],
                 'orientation': [0, 0.7071, 0.7071, 0],
                 'relative_rotation': [0.7660444, 0.6427876, 0, 0],
                 'slerp_last': False,
@@ -172,7 +178,7 @@ kinova_action_config = {
             {
                 'action_type': 'move',
                 'duration': 100,
-                'position': [0, -0.4, 0.1],
+                'position': [0, -0.4, 0.4],
                 'orientation': [-0.4545, 0.5416,  0.5416, 0.4545],
             },
         ]
@@ -183,15 +189,35 @@ kinova_action_config = {
             {
                 'action_type': 'close', #open
                 'duration': 30,
-                'ratio': 0.95,
+                'ratio': 1.1,
             },
             {
                 'action_type': 'move',
                 'duration': 200,
-                'position': [0, -0.1, 0.2],
+                'position': [0, -0.09, 0.2],
+                'orientation': [0, 0.7071, 0.7071, 0],
+            },
+            {
+                'action_type': 'move',
+                'duration': 30,
+                'position': [-0, -0.09, 0.176],
+                'orientation': [0, 0.7071, 0.7071, 0],
+            },
+            {
+                'action_type': 'move',
+                'duration': 30,
+                'position': [-0, -0.09, 0.2],
+                'orientation': [0, 0.7071, 0.7071, 0],
+            },
+            {
+                'action_type': 'move',
+                'duration': 50,
+                'position': [-0, -0.09, 0.2],
                 'orientation': [0, 0.7071, 0.7071, 0],
             },
            
         ]
     },
+
+    
 }

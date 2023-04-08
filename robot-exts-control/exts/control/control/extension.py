@@ -6,6 +6,8 @@ import carb
 
 from typing import Optional, List
 import numpy as np
+from pxr import Gf
+
 from omni.isaac.core.robots.robot import Robot
 from omni.isaac.core.prims.rigid_prim import RigidPrim
 from omni.isaac.core.utils.prims import get_prim_at_path
@@ -16,7 +18,7 @@ from omni.isaac.manipulators.grippers.parallel_gripper import ParallelGripper
 
 from .kinova.kinova import Kinova
 from .kinova.coffee_controller import CoffeeMakerController
-from .kinova.numpy_utils import euler_angles_to_quat, quat_to_euler_angles
+from .kinova.numpy_utils import euler_angles_to_quat, quat_mul
 
 # UI
 from .ui.style import julia_modeler_style
@@ -54,7 +56,7 @@ class ControlExtension(omni.ext.IExt):
                 with ui.HStack(height = 20):
                     self.ee_pos_widget = CustomMultifieldWidget(
                         label="Transform",
-                        default_vals=[0.45666, 0, 0.43371],
+                        default_vals=[0, 0, 0],
                         height = 20,
                     )
                 ui.Spacer(height = 9)
@@ -179,11 +181,15 @@ class ControlExtension(omni.ext.IExt):
         print("update_ee_target")
         if self.controller:
             self.controller.update_event("move")
+            current_pos, current_rot = self.robot.end_effector.get_world_pose()
             pos = [self.ee_pos_widget.multifields[i].model.as_float for i in range(3)]
             rot = [self.ee_ori_widget.multifields[i].model.as_float for i in range(3)]
             
-            pos = np.array(pos)
+            pos = np.array(current_pos) + np.array(pos)
             rot = euler_angles_to_quat(rot, degrees=True)
+            # current_rot = np.array([current_rot[1], current_rot[2], current_rot[3], current_rot[0]])
+            # rot = quat_mul(current_rot, rot)
+            rot = np.array([rot[3], rot[0], rot[1], rot[2]])
 
             print("updating controller ee target:", pos, rot)
             self.controller.update_ee_target(pos, rot)
@@ -227,8 +233,8 @@ class ControlExtension(omni.ext.IExt):
     def debug(self):
         print("debug")
         if self.robot:
-            self.controller.apply_high_level_action("close_coffee_machine_handle")
-            # self.controller.apply_high_level_action("move_capsule_to_coffee_machine")
+            self.controller.apply_high_level_action("pick_up_capsule")
+            self.controller.apply_high_level_action("move_capsule_to_coffee_machine")
     
     def debug2(self):
         print("debug2")
@@ -237,6 +243,7 @@ class ControlExtension(omni.ext.IExt):
             # self.controller.apply_high_level_action("move_capsule_to_coffee_machine")
             # self.controller.apply_high_level_action("pick_up_papercup")
             # self.controller.apply_high_level_action("open_coffee_machine_handle")
+            self.controller.apply_high_level_action("close_coffee_machine_handle")
             self.controller.apply_high_level_action("press_coffee_machine_button")
 
 

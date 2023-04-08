@@ -38,7 +38,11 @@ class CoffeeMakerController(BaseController):
         self.connect_server = connect_server
         if connect_server:
             self.client = KinovaClient()
-        self.sending_message = False
+            self.sending_message = False
+       
+        # add go home default action
+        # self.apply_high_level_action()
+        # self.sending_message = False
 
     def add_event_to_pool(self, event: str, elapsed: int, 
                           ee_pos: np.ndarray, ee_ori: np.ndarray, gripper_ratio: float = 1.0):
