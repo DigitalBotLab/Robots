@@ -122,6 +122,8 @@ class CoffeeMakerController(BaseController):
                     action_step['relative_rotation'], 
                     sub_steps=action_step['sub_steps'],
                     sub_duration=action_step['duration'] // action_step['sub_steps'],
+                    slerp_last=action_step['slerp_last'],
+                    slerp_offset=action_step['slerp_offset']
                     )
 
                 print("action_sequence", slerp_action_sequence)

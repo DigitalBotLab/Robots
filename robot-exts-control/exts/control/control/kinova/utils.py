@@ -98,7 +98,7 @@ def get_prim_pickup_transform(stage, prim_path: str, offset: Gf.Vec3d):
 
 def generate_slerp_action_sequence(ori_pos, ori_quat, rel_rot, 
                                    sub_steps = 5, sub_duration = 50, 
-                                   slerp_last = True, slerp_offset = Gf.Vec3d(0, -0.001, 0)):
+                                   slerp_last = True, slerp_offset = [0 ,0, 0]):
     """
     Generate slerp action sequence from relative position and rotation
     """
@@ -111,7 +111,7 @@ def generate_slerp_action_sequence(ori_pos, ori_quat, rel_rot,
         t = (i + int(slerp_last)) / sub_steps
         
         quat_rel = Gf.Slerp(t, identity_quat, rel_quat)
-        p = (quat_rel * Gf.Quatd(0, ori_pos + slerp_offset * i) * quat_rel.GetInverse()).GetImaginary()
+        p = (quat_rel * Gf.Quatd(0, ori_pos + Gf.Vec3d(*slerp_offset) * i) * quat_rel.GetInverse()).GetImaginary()
         q = quat_rel * ori_quat
         slerp_action_sequence.append(
             {
