@@ -108,8 +108,8 @@ class ControlExtension(omni.ext.IExt):
                 ui.Spacer(height = 9)
                 ui.Line(height = 2)
                 ui.Button("Debug", height = 20, clicked_fn = self.debug)
-                ui.Button("yh Debug", height = 20, clicked_fn = self.yuanhong_debug)
                 ui.Button("Debug2", height = 20, clicked_fn = self.debug2)
+                ui.Button("yh Debug", height = 20, clicked_fn = self.yuanhong_debug)
                 
 
 
@@ -262,6 +262,10 @@ class ControlExtension(omni.ext.IExt):
         # print("base_mat:", base_mat)
         # print("target_mat:", target_mat)
         # print("rel_mat:", rel_mat.ExtractTranslation(), rel_mat.ExtractRotationQuat())
+        print("yuanhong_debug")
+        if self.robot:
+            self.controller.apply_high_level_action("pick_up_papercup")
+
 
         pass
 

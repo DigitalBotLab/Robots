@@ -47,30 +47,6 @@ kinova_action_config = {
         ]
     },
 
-    "pick_up_papercup": {
-        'base_prim': '/World/papercup',
-        'steps':[
-            {
-                'action_type': 'move',
-                'duration': 200,
-                'position': [-0.3, 0, 0.3],
-                'orientation': [0.5, 0.5, 0.5, 0.5],
-            },
-            {
-                'action_type': 'move',
-                'duration': 200,
-                'position': [-0.3, 0, 0.05],
-                'orientation': [0.5, 0.5, 0.5, 0.5],
-            },
-            {
-                'action_type': 'move',
-                'duration': 200,
-                'position': [-0.15, 0, 0.05],
-                'orientation': [0.5, 0.5, 0.5, 0.5],
-            },
-        ]
-    },
-
     "open_coffee_machine_handle": {
         'base_prim': '/World/Keurig_1_5_add_hold/XformHandle',
         'steps':[
@@ -128,7 +104,7 @@ kinova_action_config = {
             {
                 'action_type': 'move',
                 'duration': 60,
-                'position': [0, -0.212, 0.02],
+                'position': [0, -0.218, 0.02],
                 'orientation':  [0, 0, 0.7071, 0.7071],
             },     
             {
@@ -171,14 +147,14 @@ kinova_action_config = {
                 'sub_steps': 7,
                 'position': [0, 0, 0.27],
                 'orientation': [0, 0.7071, 0.7071, 0],
-                'relative_rotation': [0.7660444, 0.6427876, 0, 0],
+                'relative_rotation': [0.7372773, 0.675590, 0, 0],
                 'slerp_last': False,
                 'slerp_offset': [0, 0, 0]
             },
             {
                 'action_type': 'move',
                 'duration': 100,
-                'position': [0, -0.4, 0.4],
+                'position': [0, -0.3, 0.35],
                 'orientation': [-0.4545, 0.5416,  0.5416, 0.4545],
             },
         ]
@@ -193,20 +169,14 @@ kinova_action_config = {
             },
             {
                 'action_type': 'move',
-                'duration': 200,
+                'duration': 100,
                 'position': [0, -0.09, 0.2],
                 'orientation': [0, 0.7071, 0.7071, 0],
             },
             {
                 'action_type': 'move',
                 'duration': 30,
-                'position': [-0, -0.09, 0.176],
-                'orientation': [0, 0.7071, 0.7071, 0],
-            },
-            {
-                'action_type': 'move',
-                'duration': 30,
-                'position': [-0, -0.09, 0.2],
+                'position': [-0, -0.09, 0.18],
                 'orientation': [0, 0.7071, 0.7071, 0],
             },
             {
@@ -215,9 +185,61 @@ kinova_action_config = {
                 'position': [-0, -0.09, 0.2],
                 'orientation': [0, 0.7071, 0.7071, 0],
             },
-           
+            {
+                'action_type': 'move',
+                'duration': 30,
+                'position': [-0, -0.3, 0.2],
+                'orientation': [0, 0.7071, 0.7071, 0],
+            },
+            
         ]
     },
 
+     "pick_up_papercup": {
+        'base_prim': '/World/papercup',
+        'steps':[
+            {
+                'action_type': 'move',
+                'duration': 200,
+                'position': [-0.3, 0, 0.3],
+                'orientation': [0.5, 0.5, 0.5, 0.5],
+            },
+            {
+                'action_type': 'move',
+                'duration': 200,
+                'position': [-0.3, 0, 0.05],
+                'orientation': [0.5, 0.5, 0.5, 0.5],
+            },
+            {
+                'action_type': 'move',
+                'duration': 200,
+                'position': [-0.15, 0, 0.05],
+                'orientation': [0.5, 0.5, 0.5, 0.5],
+            },
+            {
+                'action_type': 'close',
+                'duration': 30,
+                'ratio': 0.25,
+            },
+        ]
+    },
+
+     "move_papercup_to_coffee_machine": {
+        'base_prim': '/World/Keurig_1_5_add_hold/XformHandle',
+        'steps':[
+            {
+                'action_type': 'move',
+                'duration': 200,
+                'position': [0, -0.3, -0.3],
+                'orientation': [0.5, 0.5, 0.5, 0.5],
+            },
+            {
+                'action_type': 'move',
+                'duration': 200,
+                'position': [-0.3, 0, 0.05],
+                'orientation': [0.5, 0.5, 0.5, 0.5],
+            },
+        ]
+    },
     
 }
