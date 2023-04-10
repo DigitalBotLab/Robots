@@ -110,7 +110,9 @@ class ControlExtension(omni.ext.IExt):
                 ui.Button("Debug", height = 20, clicked_fn = self.debug)
                 ui.Button("Debug2", height = 20, clicked_fn = self.debug2)
                 ui.Button("yh Debug", height = 20, clicked_fn = self.yuanhong_debug)
-                
+                ui.Spacer(height = 9)
+                ui.Line(height = 2)
+                ui.Button("Test Web RTC", height = 20, clicked_fn = self.test_rtc)
 
 
         # robot
@@ -266,7 +268,11 @@ class ControlExtension(omni.ext.IExt):
         if self.robot:
             self.controller.apply_high_level_action("pick_up_papercup")
 
-
         pass
 
+    def test_rtc(self):
+        print("test web rtc")
+        from .rtc.test import RTCTest
+        rtc_test = RTCTest()
+        rtc_test.test_main()
         
