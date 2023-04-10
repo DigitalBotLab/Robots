@@ -47,15 +47,15 @@ class KinovaUDPHandler(socketserver.BaseRequestHandler):
     def control_robot(self, joint_positions):
         from kortex_api.Exceptions.KServerException import KServerException
         with utilities.DeviceConnection.createTcpConnection(args) as router:
-            with utilities.DeviceConnection.createUdpConnection(args) as router_real_time:
+            # with utilities.DeviceConnection.createUdpConnection(args) as router_real_time:
                 base = BaseClient(router)
-                base_cyclic = BaseCyclicClient(router_real_time)
+                # base_cyclic = BaseCyclicClient(router_real_time)
                 # gripper = GripperFeedback(base, base_cyclic)
                 success = True
                 success &= angular_action_movement(base, joint_positions[:7])
                 # gripper.Cleanup()
 
-                print("go to position", joint_positions[7])
+                # print("go to position", joint_positions[7])
                 joint_target = min(max(0, joint_positions[7]), 1)
 
                 if joint_target != self.joint_target:
@@ -65,6 +65,15 @@ class KinovaUDPHandler(socketserver.BaseRequestHandler):
                 # gripper.Cleanup()
 
                 return success
+        
+    def get_joint_status(self):
+        # Create connection to the device and get the router
+        with utilities.DeviceConnection.createTcpConnection(args) as router:
+            # Create required services
+            base = BaseClient(router)
+            joint_angles = base.GetMeasuredJointAngles().joint_angles
+            # print("Joint angles: ", joint_angles)
+            return joint_angles
 
 
 if __name__ == "__main__":

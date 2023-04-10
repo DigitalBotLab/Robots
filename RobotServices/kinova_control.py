@@ -58,7 +58,7 @@ def angular_action_movement(base, joint_angles):
 
     for joint_id in range(actuator_count.count):
         joint_angle = action.reach_joint_angles.joint_angles.joint_angles
-        print("joint_angle: ", joint_angle)
+        # print("joint_angle: ", joint_angle)
 
     if finished:
         print("Angular movement completed")
@@ -114,7 +114,7 @@ def GripperCommand(base, target_position):
     gripper_command.mode = Base_pb2.GRIPPER_POSITION
     finger.finger_identifier = 1
     finger.value = target_position
-    print("Going to position {:0.2f}...".format(finger.value))
+    # print("Going to position {:0.2f}...".format(finger.value))
     base.SendGripperCommand(gripper_command)
 
     return True
@@ -139,7 +139,7 @@ class GripperCommandExample:
         gripper_command.mode = Base_pb2.GRIPPER_POSITION
         finger.finger_identifier = 1
         finger.value = target_position
-        print("Going to position {:0.2f}...".format(finger.value))
+        # print("Going to position {:0.2f}...".format(finger.value))
         self.base.SendGripperCommand(gripper_command)
 
         return True
