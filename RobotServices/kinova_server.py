@@ -25,14 +25,18 @@ class KinovaUDPHandler(socketserver.BaseRequestHandler):
         data = self.request[0].strip()
         socket = self.request[1]
         
-        print(data)
-        if data.startswith(b'Hello'):
+        print("recieving data from omniverse:", data)
+        command, message = data.split(b':')
+        if command.startswith(b'Hello'):
             response = "Connect with isaac sim"
             print("establish connection with isaac sim")
-        else:
-            joint_positions = self.process_data(data)
+        elif command.startswith(b'Control'):
+            joint_positions = self.process_data(message)
             success = "succeed" if self.control_robot(joint_positions) else "failed"
             response = f"The action {success}"
+        elif command.startswith(b'GetJoints'):
+            joint_angles = self.get_joint_status()
+            response = " ".join([str(e) for e in joint_angles])
         socket.sendto(response.encode('utf-8'), self.client_address)
 
 
@@ -72,7 +76,9 @@ class KinovaUDPHandler(socketserver.BaseRequestHandler):
             # Create required services
             base = BaseClient(router)
             joint_angles = base.GetMeasuredJointAngles().joint_angles
-            # print("Joint angles: ", joint_angles)
+            # print("Joint angles: ", len(joint_angles), joint_angles[0], joint_angles)
+            joint_angles = [e.value for e in joint_angles]
+            print(joint_angles)
             return joint_angles
 
 

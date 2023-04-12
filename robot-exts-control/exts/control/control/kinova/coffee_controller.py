@@ -63,6 +63,7 @@ class CoffeeMakerController(BaseController):
             self.event = event
             self.total_event_count = 0
 
+################################## sync robot ##################################
     def synchronize_robot(self):
         """
         Send message to the Server to 
@@ -80,8 +81,18 @@ class CoffeeMakerController(BaseController):
             message = " ".join([str(e) for e in joint_positions])
         
             self.sending_message = True
-            self.client.send_message(message)
+            self.client.send_message("Control", message)
             self.sending_message = False
+
+    def obtain_robot_state(self):
+        """
+        Get robot state from the Server
+        """
+        if not self.sending_message:
+            self.sending_message = True
+            answer_message = self.client.send_message("GetJoints", "NA")
+            self.sending_message = False
+            return [float(e) for e in answer_message.split(" ")]
 
     def apply_high_level_action(self, action_name: str = "go_home"):
         """

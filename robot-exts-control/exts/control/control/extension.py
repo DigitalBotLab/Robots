@@ -266,7 +266,9 @@ class ControlExtension(omni.ext.IExt):
         # print("rel_mat:", rel_mat.ExtractTranslation(), rel_mat.ExtractRotationQuat())
         print("yuanhong_debug")
         if self.robot:
-            self.controller.apply_high_level_action("pick_up_papercup")
+            # self.controller.apply_high_level_action("pick_up_papercup")
+            obtain_robot_state = self.controller.obtain_robot_state()
+            print("obtain_robot_state:", obtain_robot_state)
 
         pass
 
