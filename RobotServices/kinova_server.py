@@ -49,7 +49,8 @@ class KinovaUDPHandler(socketserver.BaseRequestHandler):
         return joint_positions
 
     def control_robot(self, joint_positions):
-        from kortex_api.Exceptions.KServerException import KServerException
+        from kortex_api.autogen.messages import Base_pb2
+
         with utilities.DeviceConnection.createTcpConnection(args) as router:
             # with utilities.DeviceConnection.createUdpConnection(args) as router_real_time:
                 base = BaseClient(router)
@@ -67,6 +68,10 @@ class KinovaUDPHandler(socketserver.BaseRequestHandler):
                     success &= GripperCommand(base, joint_target)
 
                 # gripper.Cleanup()
+                gripper_request = Base_pb2.GripperRequest()
+                gripper_request.mode = Base_pb2.GRIPPER_POSITION
+                gripper_measure = self.base.GetMeasuredGripperMovement(gripper_request)
+                print("gripper position is at", gripper_measure)
 
                 return success
         
