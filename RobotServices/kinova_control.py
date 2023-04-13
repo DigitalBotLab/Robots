@@ -58,7 +58,7 @@ def angular_action_movement(base, joint_angles):
 
     for joint_id in range(actuator_count.count):
         joint_angle = action.reach_joint_angles.joint_angles.joint_angles
-        print("joint_angle: ", joint_angle)
+        # print("joint_angle: ", joint_angle)
 
     if finished:
         print("Angular movement completed")
@@ -104,7 +104,80 @@ def cartesian_action_movement(base, base_cyclic):
     return finished
 
 
+def GripperCommand(base, target_position):
 
+    # Create the GripperCommand we will send
+    gripper_command = Base_pb2.GripperCommand()
+    finger = gripper_command.gripper.finger.add()
+
+    # Close the gripper with position increments
+    gripper_command.mode = Base_pb2.GRIPPER_POSITION
+    finger.finger_identifier = 1
+    finger.value = target_position
+    # print("Going to position {:0.2f}...".format(finger.value))
+    base.SendGripperCommand(gripper_command)
+
+    return True
+
+
+class GripperCommandExample:
+    def __init__(self, router, proportional_gain = 2.0):
+
+        self.proportional_gain = proportional_gain
+        self.router = router
+
+        # Create base client using TCP router
+        self.base = BaseClient(self.router)
+
+    def ExampleSendGripperCommands(self, target_position):
+
+        # Create the GripperCommand we will send
+        gripper_command = Base_pb2.GripperCommand()
+        finger = gripper_command.gripper.finger.add()
+
+        # Close the gripper with position increments
+        gripper_command.mode = Base_pb2.GRIPPER_POSITION
+        finger.finger_identifier = 1
+        finger.value = target_position
+        # print("Going to position {:0.2f}...".format(finger.value))
+        self.base.SendGripperCommand(gripper_command)
+
+        return True
+
+        # # Set speed to open gripper
+        # print ("Opening gripper using speed command...")
+        # gripper_command.mode = Base_pb2.GRIPPER_SPEED
+        # finger.value = 0.1
+        # self.base.SendGripperCommand(gripper_command)
+        # gripper_request = Base_pb2.GripperRequest()
+
+        # # Wait for reported position to be opened
+        # gripper_request.mode = Base_pb2.GRIPPER_POSITION
+        # while True:
+        #     gripper_measure = self.base.GetMeasuredGripperMovement(gripper_request)
+        #     if len (gripper_measure.finger):
+        #         print("Current position is : {0}".format(gripper_measure.finger[0].value))
+        #         if gripper_measure.finger[0].value < 0.01:
+        #             break
+        #     else: # Else, no finger present in answer, end loop
+        #         break
+
+        # # Set speed to close gripper
+        # print ("Closing gripper using speed command...")
+        # gripper_command.mode = Base_pb2.GRIPPER_SPEED
+        # finger.value = -0.1
+        # self.base.SendGripperCommand(gripper_command)
+
+        # # Wait for reported speed to be 0
+        # gripper_request.mode = Base_pb2.GRIPPER_SPEED
+        # while True:
+        #     gripper_measure = self.base.GetMeasuredGripperMovement(gripper_request)
+        #     if len (gripper_measure.finger):
+        #         print("Current speed is : {0}".format(gripper_measure.finger[0].value))
+        #         if gripper_measure.finger[0].value == 0.0:
+        #             break
+        #     else: # Else, no finger present in answer, end loop
+        #         break
 
 
 class GripperFeedback:

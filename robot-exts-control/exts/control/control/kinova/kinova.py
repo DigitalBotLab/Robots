@@ -24,7 +24,7 @@ class Kinova(Robot):
         gripper_closed_position: Optional[np.ndarray] = None,
         deltas: Optional[np.ndarray] = None,
     ) -> None:
-        self.prim_path = prim_path
+        # self.prim_path = prim_path
         prim = get_prim_at_path(prim_path)
         assert prim.IsValid(), "Please load Kinova into the environment first"
         self._end_effector = None
@@ -44,7 +44,7 @@ class Kinova(Robot):
                             ]
         
         gripper_open_position = np.zeros(6)
-        gripper_closed_position = np.array([0.8757, -0.8757, 0.8757, -0.8757, -0.8757, 0.8757]) * 0.8
+        gripper_closed_position = np.array([0.8757, -0.8757, 0.8757, -0.8757, -0.8757, 0.8757])
         deltas = None # -gripper_closed_position / 5.0
 
         self._gripper = KinovaGripper(

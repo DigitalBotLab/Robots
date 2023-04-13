@@ -26,6 +26,7 @@ class KinovaGripper(Gripper):
         self._set_joint_positions_func = None
         self._action_deltas = action_deltas
         self._articulation_num_dofs = None
+        self._close_ratio = 1.0
         return
      
     @property
@@ -208,7 +209,7 @@ class KinovaGripper(Gripper):
             target_joint_positions = [None] * self._articulation_num_dofs
             if self._action_deltas is None:
                 for i in range(self._gripper_joint_num):
-                    target_joint_positions[self._joint_dof_indicies[i]] = self._joint_closed_positions[i]
+                    target_joint_positions[self._joint_dof_indicies[i]] = self._joint_closed_positions[i] * self._close_ratio
             else:
                 current_joint_positions = self._get_joint_positions_func()
                 for i in range(self._gripper_joint_num):
@@ -262,3 +263,9 @@ class KinovaGripper(Gripper):
 
         self._articulation_apply_action_func(control_actions=joint_actions)
         return
+    
+    def set_close_ratio(self, ratio):
+        """
+        Sets the ratio of the closed position of the gripper.
+        """
+        self._close_ratio = ratio

@@ -4,7 +4,7 @@ import sys, os
 from numpy import interp
 from kortex_api.autogen.client_stubs.BaseClientRpc import BaseClient
 from kortex_api.autogen.client_stubs.BaseCyclicClientRpc import BaseCyclicClient 
-from kinova_control import angular_action_movement, GripperFeedback
+from kinova_control import angular_action_movement, GripperFeedback, GripperCommand
 
 # import files
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -17,21 +17,28 @@ class KinovaUDPHandler(socketserver.BaseRequestHandler):
     there is no connection the client address must be given explicitly
     when sending data back via sendto().
     """
+    def setup(self):
+        self.joint_target = 0.0
 
     def handle(self):
         # obtain message from Isaac Sim
         data = self.request[0].strip()
         socket = self.request[1]
         
-        print(data)
-        if data.startswith(b'Hello'):
+        print("recieving data from omniverse:", data)
+        command, message = data.split(b':')
+        if command.startswith(b'Hello'):
             response = "Connect with isaac sim"
             print("establish connection with isaac sim")
-        else:
-            joint_positions = self.process_data(data)
+        elif command.startswith(b'Control'):
+            joint_positions = self.process_data(message)
             success = "succeed" if self.control_robot(joint_positions) else "failed"
             response = f"The action {success}"
+        elif command.startswith(b'GetJoints'):
+            joint_angles = self.get_joint_status()
+            response = " ".join([str(e) for e in joint_angles])
         socket.sendto(response.encode('utf-8'), self.client_address)
+
 
     def process_data(self, data: str):
         """
@@ -45,22 +52,39 @@ class KinovaUDPHandler(socketserver.BaseRequestHandler):
         from kortex_api.autogen.messages import Base_pb2
 
         with utilities.DeviceConnection.createTcpConnection(args) as router:
-            with utilities.DeviceConnection.createUdpConnection(args) as router_real_time:
+            # with utilities.DeviceConnection.createUdpConnection(args) as router_real_time:
                 base = BaseClient(router)
-                base_cyclic = BaseCyclicClient(router_real_time)
+                # base_cyclic = BaseCyclicClient(router_real_time)
                 # gripper = GripperFeedback(base, base_cyclic)
                 success = True
                 success &= angular_action_movement(base, joint_positions[:7])
                 # gripper.Cleanup()
 
+                # print("go to position", joint_positions[7])
+                joint_target = min(max(0, joint_positions[7]), 1)
+
+                if joint_target != self.joint_target:
+                    self.joint_target = joint_target
+                    success &= GripperCommand(base, joint_target)
+
+                # gripper.Cleanup()
                 gripper_request = Base_pb2.GripperRequest()
                 gripper_request.mode = Base_pb2.GRIPPER_POSITION
-
                 gripper_measure = self.base.GetMeasuredGripperMovement(gripper_request)
-
                 print("gripper position is at", gripper_measure)
 
                 return success
+        
+    def get_joint_status(self):
+        # Create connection to the device and get the router
+        with utilities.DeviceConnection.createTcpConnection(args) as router:
+            # Create required services
+            base = BaseClient(router)
+            joint_angles = base.GetMeasuredJointAngles().joint_angles
+            # print("Joint angles: ", len(joint_angles), joint_angles[0], joint_angles)
+            joint_angles = [e.value for e in joint_angles]
+            print(joint_angles)
+            return joint_angles
 
 
 if __name__ == "__main__":

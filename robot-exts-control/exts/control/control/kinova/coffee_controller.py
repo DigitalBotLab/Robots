@@ -38,10 +38,15 @@ class CoffeeMakerController(BaseController):
         self.connect_server = connect_server
         if connect_server:
             self.client = KinovaClient()
+            self.sending_message = False
+       
+        # add go home default action
+        # self.apply_high_level_action()
+        # self.sending_message = False
 
     def add_event_to_pool(self, event: str, elapsed: int, 
-                          ee_pos: np.ndarray, ee_ori: np.ndarray, gripper_ratio: float = 0.0):
-        self.event_pool.append([event, elapsed, ee_pos, ee_ori])
+                          ee_pos: np.ndarray, ee_ori: np.ndarray, gripper_ratio: float = 1.0):
+        self.event_pool.append([event, elapsed, ee_pos, ee_ori, gripper_ratio])
         
     def update_ee_target(self, pos, ori):
         """
@@ -58,21 +63,36 @@ class CoffeeMakerController(BaseController):
             self.event = event
             self.total_event_count = 0
 
-    async def synchronize_robot(self):
+################################## sync robot ##################################
+    def synchronize_robot(self):
         """
         Send message to the Server to 
         """
-        # get joint positions and gripper degree
-        all_positions = self.robot.get_joint_positions()
-        gripper_degree = all_positions[7] / 0.8757
-        joint_positions = [regulate_degree(e, indegree=False) for e in all_positions[:7]]
-        joint_positions = joint_positions + [gripper_degree]
+        if not self.sending_message:
+            # get joint positions and gripper degree
+            all_positions = self.robot.get_joint_positions()
+            gripper_degree = all_positions[7] / 0.8757
+            joint_positions = [regulate_degree(e, indegree=False) for e in all_positions[:7]]
+            joint_positions = joint_positions + [gripper_degree]
 
-        assert len(joint_positions) == 8, "Invalid number of joint positions"
+            assert len(joint_positions) == 8, "Invalid number of joint positions"
 
-        # send message
-        message = " ".join([str(e) for e in joint_positions])
-        self.client.send_message(message)
+            # send message
+            message = " ".join([str(e) for e in joint_positions])
+        
+            self.sending_message = True
+            self.client.send_message("Control", message)
+            self.sending_message = False
+
+    def obtain_robot_state(self):
+        """
+        Get robot state from the Server
+        """
+        if not self.sending_message:
+            self.sending_message = True
+            answer_message = self.client.send_message("GetJoints", "NA")
+            self.sending_message = False
+            return [float(e) for e in answer_message.split(" ")]
 
     def apply_high_level_action(self, action_name: str = "go_home"):
         """
@@ -108,7 +128,8 @@ class CoffeeMakerController(BaseController):
 
                 self.add_event_to_pool(step_type, duration, pos_array, rot_array)
             elif step_type in ["close", "open"]: 
-                self.add_event_to_pool(step_type, duration, None, None)
+                gripper_ratio = action_step['ratio']
+                self.add_event_to_pool(step_type, duration, None, None, gripper_ratio)
             elif step_type == "slerp":
                 slerp_action_sequence = generate_slerp_action_sequence(
                     action_step['position'], 
@@ -116,6 +137,8 @@ class CoffeeMakerController(BaseController):
                     action_step['relative_rotation'], 
                     sub_steps=action_step['sub_steps'],
                     sub_duration=action_step['duration'] // action_step['sub_steps'],
+                    slerp_last=action_step['slerp_last'],
+                    slerp_offset=action_step['slerp_offset']
                     )
 
                 print("action_sequence", slerp_action_sequence)
@@ -138,12 +161,23 @@ class CoffeeMakerController(BaseController):
         # update event
         if len(self.event_pool) > 0:
             if self.event_elapsed <= 0:
-                event, elapsed, ee_pos, ee_ori = self.event_pool.pop(0)
-                print("event, elapsed, ee_pos, ee_ori ", event, elapsed, ee_pos, ee_ori )
+                event, elapsed, ee_pos, ee_ori, gripper_ratio = self.event_pool.pop(0)
+                print("event, elapsed, ee_pos, ee_ori ", event, elapsed, ee_pos, ee_ori, gripper_ratio)
                 self.update_event(event)
                 if self.event == "move":
                     self.update_ee_target(ee_pos, ee_ori)
+                elif self.event == "close":
+                    self.gripper.set_close_ratio(gripper_ratio)
+                
+
+                if self.connect_server:
+                    self.synchronize_robot()
+
                 self.event_elapsed = elapsed
+        else:
+            if self.connect_server:
+                if self.total_event_count % (60 * 3) == 0:
+                    self.synchronize_robot()
 
         # print("coffee control event", self.event, self.event_elapsed)
         if self.event == "move":
@@ -172,9 +206,9 @@ class CoffeeMakerController(BaseController):
         self.total_event_count += 1 # update event time
         self.event_elapsed -= 1 # update event elapsed time
         # synchronize
-        if self.connect_server:
-            if self.total_event_count % 60 == 0:
-                asyncio.ensure_future(self.synchronize_robot())
+        # if self.connect_server:
+        #     if self.total_event_count % 60 == 0:
+        #         self.synchronize_robot()
 
 
         # return actions
