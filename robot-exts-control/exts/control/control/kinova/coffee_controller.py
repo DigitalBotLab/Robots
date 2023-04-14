@@ -176,7 +176,7 @@ class CoffeeMakerController(BaseController):
                 self.event_elapsed = elapsed
         else:
             if self.connect_server:
-                if self.total_event_count % (60 * 3) == 0:
+                if self.total_event_count > 200 and self.total_event_count % (60 * 3) == 0:
                     self.synchronize_robot()
 
         # print("coffee control event", self.event, self.event_elapsed)

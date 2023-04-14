@@ -52,7 +52,7 @@ class KinovaUDPHandler(socketserver.BaseRequestHandler):
         from kortex_api.autogen.messages import Base_pb2
 
         with utilities.DeviceConnection.createTcpConnection(args) as router:
-            # with utilities.DeviceConnection.createUdpConnection(args) as router_real_time:
+            with utilities.DeviceConnection.createUdpConnection(args) as router_real_time:
                 base = BaseClient(router)
                 # base_cyclic = BaseCyclicClient(router_real_time)
                 # gripper = GripperFeedback(base, base_cyclic)
@@ -60,18 +60,18 @@ class KinovaUDPHandler(socketserver.BaseRequestHandler):
                 success &= angular_action_movement(base, joint_positions[:7])
                 # gripper.Cleanup()
 
-                # print("go to position", joint_positions[7])
+                print("go to position", joint_positions[7])
                 joint_target = min(max(0, joint_positions[7]), 1)
 
-                if joint_target != self.joint_target:
-                    self.joint_target = joint_target
-                    success &= GripperCommand(base, joint_target)
+                # if joint_target != self.joint_target:
+                # self.joint_target = joint_target
+                success &= GripperCommand(base, joint_target)
 
                 # gripper.Cleanup()
-                gripper_request = Base_pb2.GripperRequest()
-                gripper_request.mode = Base_pb2.GRIPPER_POSITION
-                gripper_measure = self.base.GetMeasuredGripperMovement(gripper_request)
-                print("gripper position is at", gripper_measure)
+                # gripper_request = Base_pb2.GripperRequest()
+                # gripper_request.mode = Base_pb2.GRIPPER_POSITION
+                # gripper_measure = base.GetMeasuredGripperMovement(gripper_request)
+                # print("gripper position is at", gripper_measure)
 
                 return success
         
