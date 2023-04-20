@@ -4,6 +4,8 @@ import sys, os
 from numpy import interp
 from kortex_api.autogen.client_stubs.BaseClientRpc import BaseClient
 from kortex_api.autogen.client_stubs.BaseCyclicClientRpc import BaseCyclicClient 
+from kortex_api.autogen.messages import Base_pb2
+
 from kinova_control import angular_action_movement, GripperFeedback, GripperCommand
 
 # import files
@@ -37,6 +39,7 @@ class KinovaUDPHandler(socketserver.BaseRequestHandler):
         elif command.startswith(b'GetJoints'):
             joint_angles = self.get_joint_status()
             response = " ".join([str(e) for e in joint_angles])
+            
         socket.sendto(response.encode('utf-8'), self.client_address)
 
 
@@ -49,7 +52,7 @@ class KinovaUDPHandler(socketserver.BaseRequestHandler):
         return joint_positions
 
     def control_robot(self, joint_positions):
-        from kortex_api.autogen.messages import Base_pb2
+        
 
         with utilities.DeviceConnection.createTcpConnection(args) as router:
             with utilities.DeviceConnection.createUdpConnection(args) as router_real_time:
@@ -78,13 +81,20 @@ class KinovaUDPHandler(socketserver.BaseRequestHandler):
     def get_joint_status(self):
         # Create connection to the device and get the router
         with utilities.DeviceConnection.createTcpConnection(args) as router:
-            # Create required services
-            base = BaseClient(router)
-            joint_angles = base.GetMeasuredJointAngles().joint_angles
-            # print("Joint angles: ", len(joint_angles), joint_angles[0], joint_angles)
-            joint_angles = [e.value for e in joint_angles]
-            print(joint_angles)
-            return joint_angles
+            with utilities.DeviceConnection.createUdpConnection(args) as router_real_time:
+                # Create required services
+                base = BaseClient(router)
+                joint_angles = base.GetMeasuredJointAngles().joint_angles
+                # print("Joint angles: ", len(joint_angles), joint_angles[0], joint_angles)
+                joint_angles = [e.value for e in joint_angles]
+
+                gripper_request = Base_pb2.GripperRequest()
+                gripper_request.mode = Base_pb2.GRIPPER_POSITION
+                gripper_measure = base.GetMeasuredGripperMovement(gripper_request)
+                # print("gripper position is at", gripper_measure)
+
+                print("joint_angles and gripper position", joint_angles, gripper_measure)
+                return joint_angles + [gripper_measure]
 
 
 if __name__ == "__main__":
