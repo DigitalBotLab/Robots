@@ -127,3 +127,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# ignore all the files under GroundingDINO folder
+VisionServices/GroundingDINO/
