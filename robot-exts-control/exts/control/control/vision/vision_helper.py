@@ -1,8 +1,26 @@
 # send message to Kinova Server to control the real robot
-import cv2 
+try:
+    import cv2
+except:
+# omni.kit.pipapi extension is required
+    import omni.kit.pipapi
+    # It wraps `pip install` calls and reroutes package installation into user specified environment folder.
+    # That folder is added to sys.path.
+    # Note: This call is blocking and slow. It is meant to be used for debugging, development. For final product packages
+    # should be installed at build-time and packaged inside extensions.
+    omni.kit.pipapi.install(
+        package="opencv-python",
+    )
+ 
 import requests
 import base64
-import json
+
+import omni.usd
+import carb 
+from pxr import Gf, UsdGeom
+
+from omni.physx import get_physx_scene_query_interface
+from omni.debugdraw import get_debug_draw_interface
 
 class VisionHelper():
     def __init__(self, vision_url: str, vision_folder:str, vision_model = "owl_vit") -> None:
@@ -44,4 +62,12 @@ class VisionHelper():
         ret, frame = cap.read()
         cv2.imwrite(self.vision_folder + "/0.jpg", frame)
         cap.release()
+        
+    def obtain_camera_transform(self, camara_path: str):
+        """
+        Obtain camera transform
+        """
+        camera_prim = omni.usd.get_stage().GetPrimAtPath(camara_path)
+        xformable = UsdGeom.Xformable(camera_prim)
+        self.camera_mat = xformable.ComputeLocalToWorldTransform(0)
         
