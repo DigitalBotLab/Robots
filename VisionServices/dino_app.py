@@ -4,12 +4,11 @@ import gradio as gr
 import torch
 
 # Grounding DINO
-import GroundingDINO.groundingdino.datasets.transforms as T
 from GroundingDINO.groundingdino.models import build_model
 from GroundingDINO.groundingdino.util.slconfig import SLConfig
 from GroundingDINO.groundingdino.util.utils import clean_state_dict
 from GroundingDINO.groundingdino.util.inference import predict
-
+from GroundingDINO.groundingdino.datasets import transforms as T
 
 
 # segment anything
