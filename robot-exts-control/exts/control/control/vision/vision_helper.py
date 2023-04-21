@@ -21,6 +21,8 @@ import omni.usd
 import carb 
 from pxr import Gf, UsdGeom
 
+import omni.timeline
+import omni.graph.core as og
 from omni.physx import get_physx_scene_query_interface
 from omni.debugdraw import get_debug_draw_interface
 
@@ -29,9 +31,13 @@ CY = 720/2 # principal point y
 
 class VisionHelper():
     def __init__(self, vision_url: str, vision_folder:str, vision_model = "owl_vit") -> None:
+        # vision
         self.vision_url = vision_url
         self.vision_folder = vision_folder
         self.vision_model = vision_model
+        
+        # stage
+        self.stage = omni.usd.get_context().get_stage()
 
     def get_bounding_box_data(self, image_file: str, object_name: str, threshold: float):
         """
@@ -93,10 +99,38 @@ class VisionHelper():
         D = Gf.Vec3d((CX - x) * Z / fx, (CY - y) * Z / fy, Z)
         world_direction = R_inverse * D 
 
-        t = self.camera_mat.ExtractTranslation()
-        # debug
-        self._debugDraw = get_debug_draw_interface()
-        COLOR_YELLOW = COLOR_YELLOW = 0xffffff00
-        self._debugDraw.draw_line(t, COLOR_YELLOW, t + world_direction * 10, COLOR_YELLOW)
-
         return world_direction 
+    
+    def draw_debug_line(self, origin, direction, length = 1, node_path = "/World/PushGraph/make_array"):
+        """
+        Draw debug line
+        """
+        make_array_node = og.Controller.node(node_path)
+        if make_array_node.is_valid():
+            origin_attribute = make_array_node.get_attribute("inputs:input0")
+            target_attribute = make_array_node.get_attribute("inputs:input1")
+            # attr_value = og.Controller.get(attribute)
+            og.Controller.set(origin_attribute, [origin[0], origin[1], origin[2]])
+            og.Controller.set(target_attribute, [direction[0] * length + origin[0], direction[1] * length + origin[1], direction[2] * length + origin[2]])
+            # print("attr:", attr_value)
+
+    def get_hit_position(self, origin, direction, target_prim_path = "/World/Desk"):
+        """
+        Get hit position
+        note: should be call while timeline is playing
+        """
+        timeline = omni.timeline.get_timeline_interface()
+        assert timeline.is_playing(), "timeline is not playing"
+        def report_all_hits(hit):
+            usdGeom = UsdGeom.Mesh.Get(self.stage, hit.rigid_body)
+            print("hit:", hit.rigid_body, usdGeom.GetPrim().GetPath(), hit.position, hit.normal, hit.distance, hit.face_index)
+            if usdGeom.GetPrim().GetPath().pathString == target_prim_path:
+                hit_position = hit.position
+
+        hit_position = None
+        t = carb.Float3(origin[0], origin[1], origin[2])
+        d = carb.Float3(direction[0], direction[1], direction[2])
+        get_physx_scene_query_interface().raycast_all(t, d, 100.0, report_all_hits)
+
+        return hit_position
+        
