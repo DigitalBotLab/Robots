@@ -130,6 +130,7 @@ class VisionHelper():
         hit_position = None
         t = carb.Float3(origin[0], origin[1], origin[2])
         d = carb.Float3(direction[0], direction[1], direction[2])
+        # print("t:", t, "d:", d)
         get_physx_scene_query_interface().raycast_all(t, d, 100.0, report_all_hits)
 
         return hit_position

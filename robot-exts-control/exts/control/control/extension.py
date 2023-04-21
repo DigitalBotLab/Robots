@@ -246,32 +246,25 @@ class ControlExtension(omni.ext.IExt):
 
         self.vision_helper.obtain_camera_transform(camara_path="/World/Camera")
         t = self.vision_helper.camera_mat.ExtractTranslation()
-        print("camera offset", t)
+        # print("camera offset", t)
         foc = 1000
         world_d = self.vision_helper.get_world_direction_from_camera_point(0, 0, foc, foc)
         world_d= world_d.GetNormalized()
-        print("world_p:", world_d)
+        # print("world_p:", world_d)
 
-        import omni.graph.core as og
-        make_array_node = og.Controller.node("/World/PushGraph/make_array")
-        origin_attribute = make_array_node.get_attribute("inputs:input0")
-        target_attribute = make_array_node.get_attribute("inputs:input1")
-        # attr_value = og.Controller.get(attribute)
-        og.Controller.set(origin_attribute, [t[0], t[1], t[2]])
-        og.Controller.set(target_attribute, [world_d[0] + t[0], world_d[1] + t[1], world_d[2] + t[2]])
-        # print("attr:", attr_value)
-        
-        from omni.physx import get_physx_scene_query_interface
-        t = carb.Float3(t[0], t[1], t[2])
-        d = carb.Float3(world_d[0], world_d[1], world_d[2])
-        get_physx_scene_query_interface().raycast_all(t, d, 100.0, self.report_all_hits)
+        self.vision_helper.draw_debug_line(t, world_d)
+        self.vision_helper.get_hit_position(t, world_d, target_prim_path="/World/Desk")
+    #     from omni.physx import get_physx_scene_query_interface
+    #     t = carb.Float3(t[0], t[1], t[2])
+    #     d = carb.Float3(world_d[0], world_d[1], world_d[2])
+    #     get_physx_scene_query_interface().raycast_all(t, d, 100.0, self.report_all_hits)
 
-    def report_all_hits(self, hit):
-        stage = omni.usd.get_context().get_stage()
-        from pxr import UsdGeom
-        usdGeom = UsdGeom.Mesh.Get(stage, hit.rigid_body)
-        print("hit:", hit.rigid_body, usdGeom.GetPrim().GetPath(), hit.position, hit.normal, hit.distance, hit.face_index)
-        return True
+    # def report_all_hits(self, hit):
+    #     stage = omni.usd.get_context().get_stage()
+    #     from pxr import UsdGeom
+    #     usdGeom = UsdGeom.Mesh.Get(stage, hit.rigid_body)
+    #     print("hit:", hit.rigid_body, usdGeom.GetPrim().GetPath(), hit.position, hit.normal, hit.distance, hit.face_index)
+    #     return True
 
     def debug(self):
         print("debug")
