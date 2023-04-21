@@ -104,6 +104,11 @@ class ControlExtension(omni.ext.IExt):
                 #         read_only= True
                 #     )
                 
+                # vision part
+
+                ui.Spacer(height = 9)
+                ui.Line(height = 2)
+                ui.Button("Test vision", height = 20, clicked_fn = self.test_vision)
 
                 ui.Spacer(height = 9)
                 ui.Line(height = 2)
@@ -230,7 +235,29 @@ class ControlExtension(omni.ext.IExt):
         # rot_euler = quat_to_euler_angles(rot_quat, degrees=True)
         # print("rot_euler:", rot_euler)
         # self.ee_ori_euler_read_widget.update(rot_euler[0])
+    
 
+    ########################## vision ########################################################
+    def test_vision(self):
+        print("test_vision")
+        from .vision.vision_helper import VisionHelper
+        self.vision_helper = VisionHelper(vision_url=None, vision_folder="C:\\Research\\Temp")
+        # self.vision_helper.get_image_from_webcam()
+
+        self.vision_helper.obtain_camera_transform(camara_path="/World/Camera")
+        t = self.vision_helper.camera_mat.ExtractTranslation()
+        print("camera offset", t)
+        foc = 1000
+        world_p = self.vision_helper.get_world_direction_from_camera_point(0, 0, foc, foc)
+        print("world_p:", world_p)
+
+        import omni.graph.core as og
+        make_array_node = og.Controller.node("/World/PushGraph/make_array")
+        attribute = make_array_node.get_attribute("inputs:input1")
+        # attr_value = og.Controller.get(attribute)
+        og.Controller.set(attribute, [-10, 10, 10])
+        # print("attr:", attr_value)
+      
 
     def debug(self):
         print("debug")
