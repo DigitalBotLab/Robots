@@ -300,11 +300,20 @@ class ControlExtension(omni.ext.IExt):
         # print("rel_mat:", rel_mat.ExtractTranslation(), rel_mat.ExtractRotationQuat())
         print("yuanhong_debug")
         if self.robot:
-            # self.controller.apply_high_level_action("pick_up_papercup")
-            obtain_robot_state = self.controller.obtain_robot_state()
-            print("obtain_robot_state:", obtain_robot_state)
+            self.controller.apply_high_level_action("pick_up_papercup")
+            self.controller.apply_high_level_action("move_papercup_to_coffee_machine")
+            #obtain_robot_state = self.controller.obtain_robot_state()
+            # print("obtain_robot_state:", obtain_robot_state)
 
+        # from pxr import UsdGeom, Usd
+        # stage = omni.usd.get_context().get_stage()
+        # cup_prim = stage.GetPrimAtPath("/World/Simple_Paper_Cup")
+        # xformable = UsdGeom.Xformable(cup_prim)
+        # mat0 = xformable.ComputeLocalToWorldTransform(Usd.TimeCode.Default())
+        # pos = mat0.ExtractTranslation()
+        # print("cup pos:", pos)
         pass
+
 
     def test_rtc(self):
         print("test web rtc")
