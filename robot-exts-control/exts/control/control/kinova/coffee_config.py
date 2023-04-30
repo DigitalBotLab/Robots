@@ -186,7 +186,7 @@ kinova_action_config = {
             {
                 'action_type': 'close',
                 'duration': 60,
-                'ratio': 0.3,
+                'ratio': 0.4,
             },
             {
                 'action_type': 'move',
