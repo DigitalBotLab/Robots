@@ -30,7 +30,7 @@ class ControlExtension(omni.ext.IExt):
     # this extension is located on filesystem.
     def on_startup(self, ext_id):
         print("[control] control startup")
-
+        self.ext_id = ext_id
         # set up fps limit
         carb.settings.get_settings().set_float("/app/runLoops/main/rateLimitFrequency", 30) 
         carb.settings.get_settings().set_float("/app/runLoops/present/rateLimitFrequency", 30) 
@@ -109,6 +109,10 @@ class ControlExtension(omni.ext.IExt):
                 ui.Spacer(height = 9)
                 ui.Line(height = 2)
                 ui.Button("Test vision", height = 20, clicked_fn = self.test_vision)
+                ui.Button("Draw vision", height = 20, clicked_fn = self.draw_vision)
+                ui.Button("Draw vision 2", height = 20, clicked_fn = self.draw_vision2)
+                
+                
 
                 ui.Spacer(height = 9)
                 ui.Line(height = 2)
@@ -117,7 +121,6 @@ class ControlExtension(omni.ext.IExt):
                 ui.Button("yh Debug", height = 20, clicked_fn = self.yuanhong_debug)
                 ui.Spacer(height = 9)
                 ui.Line(height = 2)
-                ui.Button("Test Web RTC", height = 20, clicked_fn = self.test_rtc)
 
 
         # robot
@@ -237,35 +240,6 @@ class ControlExtension(omni.ext.IExt):
         # self.ee_ori_euler_read_widget.update(rot_euler[0])
     
 
-    ########################## vision ########################################################
-    def test_vision(self):
-        print("test_vision")
-        from .vision.vision_helper import VisionHelper
-        self.vision_helper = VisionHelper(vision_url=None, vision_folder="C:\\Research\\Temp")
-        # self.vision_helper.get_image_from_webcam()
-
-        self.vision_helper.obtain_camera_transform(camara_path="/World/Camera")
-        t = self.vision_helper.camera_mat.ExtractTranslation()
-        # print("camera offset", t)
-        foc = 1000
-        world_d = self.vision_helper.get_world_direction_from_camera_point(0, 0, foc, foc)
-        world_d= world_d.GetNormalized()
-        # print("world_p:", world_d)
-
-        self.vision_helper.draw_debug_line(t, world_d)
-        self.vision_helper.get_hit_position(t, world_d, target_prim_path="/World/Desk")
-    #     from omni.physx import get_physx_scene_query_interface
-    #     t = carb.Float3(t[0], t[1], t[2])
-    #     d = carb.Float3(world_d[0], world_d[1], world_d[2])
-    #     get_physx_scene_query_interface().raycast_all(t, d, 100.0, self.report_all_hits)
-
-    # def report_all_hits(self, hit):
-    #     stage = omni.usd.get_context().get_stage()
-    #     from pxr import UsdGeom
-    #     usdGeom = UsdGeom.Mesh.Get(stage, hit.rigid_body)
-    #     print("hit:", hit.rigid_body, usdGeom.GetPrim().GetPath(), hit.position, hit.normal, hit.distance, hit.face_index)
-    #     return True
-
     def debug(self):
         print("debug")
         if self.robot:
@@ -314,10 +288,76 @@ class ControlExtension(omni.ext.IExt):
         # print("cup pos:", pos)
         pass
 
+    
+    ########################## vision ########################################################
+    def test_vision(self):
+        print("test_vision")
+        from .vision.vision_helper import VisionHelper
+        self.vision_helper = VisionHelper(vision_url=None, vision_folder="C:\\Research\\Temp")
+        # self.vision_helper.get_image_from_webcam()
 
-    def test_rtc(self):
-        print("test web rtc")
-        from .rtc.test import RTCTest
-        rtc_test = RTCTest()
-        rtc_test.test_main()
+        self.vision_helper.obtain_camera_transform(camara_path="/World/Camera")
+        t = self.vision_helper.camera_mat.ExtractTranslation()
+        print("camera offset", t)
+        foc = 1000
+        world_d = self.vision_helper.get_world_direction_from_camera_point(0, 0, foc, foc)
+        world_d= world_d.GetNormalized()
+        print("world_d:", world_d)
+
+        self.vision_helper.draw_debug_line(t, world_d)
+        self.vision_helper.get_hit_position(t, world_d, target_prim_path="/World/Desk")
+    #     from omni.physx import get_physx_scene_query_interface
+    #     t = carb.Float3(t[0], t[1], t[2])
+    #     d = carb.Float3(world_d[0], world_d[1], world_d[2])
+    #     get_physx_scene_query_interface().raycast_all(t, d, 100.0, self.report_all_hits)
+
+    # def report_all_hits(self, hit):
+    #     stage = omni.usd.get_context().get_stage()
+    #     from pxr import UsdGeom
+    #     usdGeom = UsdGeom.Mesh.Get(stage, hit.rigid_body)
+    #     print("hit:", hit.rigid_body, usdGeom.GetPrim().GetPath(), hit.position, hit.normal, hit.distance, hit.face_index)
+    #     return True
+
+
+    def draw_vision(self):
+        print("draw_vision")
+        from omni.ui import scene as sc
+        from omni.ui import color as cl
+
+
+
+        from omni.kit.viewport.utility import get_active_viewport_window
+        self._viewport_window = get_active_viewport_window()
+
+        if hasattr(self, "scene_view"):
+            self.scene_view.scene.clear()
+            if self._viewport_window:
+                self._viewport_window.viewport_api.remove_scene_view(self.scene_view)
+            self.scene_view = None
+
+        with self._viewport_window.get_frame(0):
+            self.scene_view = sc.SceneView()
+            self.scene_view.scene.clear()
+
+            points_b = [[12500.0, 0, 0.0], [0.0, 0, 12500.0], [-12500.0, 0, 0.0], [-0.0, 0, -12500.0], [12500.0, 0, -0.0]]
+            with self.scene_view.scene:
+                transform = sc.Transform()
+                # move_ges = MoveGesture(transform)
+                with transform:
+                    for pt in points_b:
+                        sc.Curve([pt, [0, 0, 0]], thicknesses=[1.0], colors=[cl.green], curve_type=sc.Curve.CurveType.LINEAR)
+      
+
+            self._viewport_window.viewport_api.add_scene_view(self.scene_view)
+
+    def draw_vision2(self):
+        print("draw_vision2")
+        from omni.kit.viewport.utility import get_active_viewport
+        from omni.kit.viewport.window import get_viewport_window_instances
+
+        viewport_api = get_active_viewport()
+        viewport_api.resolution = (640, 480)
+        # print("viewport_api:", viewport_api.resolution)	
+
+        # https://docs.omniverse.nvidia.com/kit/docs/omni.kit.viewport.docs/latest/viewport_api.html
         

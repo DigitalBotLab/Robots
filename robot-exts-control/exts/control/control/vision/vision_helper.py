@@ -30,7 +30,7 @@ CX = 1280/2 # principal point x
 CY = 720/2 # principal point y
 
 class VisionHelper():
-    def __init__(self, vision_url: str, vision_folder:str, vision_model = "owl_vit") -> None:
+    def __init__(self, vision_url: str, vision_folder:str, vision_model = "dino") -> None:
         # vision
         self.vision_url = vision_url
         self.vision_folder = vision_folder
@@ -107,11 +107,15 @@ class VisionHelper():
         """
         make_array_node = og.Controller.node(node_path)
         if make_array_node.is_valid():
+            # print("draw debug line")
             origin_attribute = make_array_node.get_attribute("inputs:input0")
             target_attribute = make_array_node.get_attribute("inputs:input1")
+            size_attribute = make_array_node.get_attribute("inputs:arraySize")
             # attr_value = og.Controller.get(attribute)
+            og.Controller.set(size_attribute, 2)
             og.Controller.set(origin_attribute, [origin[0], origin[1], origin[2]])
             og.Controller.set(target_attribute, [direction[0] * length + origin[0], direction[1] * length + origin[1], direction[2] * length + origin[2]])
+            
             # print("attr:", attr_value)
 
     def get_hit_position(self, origin, direction, target_prim_path = "/World/Desk"):

@@ -129,4 +129,4 @@ dmypy.json
 .pyre/
 
 # ignore all the files under GroundingDINO folder
-VisionServices/GroundingDINO/
+VisionServices/dino/GroundingDINO/
