@@ -68,7 +68,7 @@ def segment_everything(
                        use_retina=use_retina,
                        )
     
-    return str(contour_str)
+    return json.dumps(contour_str.tolist())
 
 cond_img_e = gr.Image(label="Input", type='pil')
 cond_img_p = gr.Image(label="Input with points", type='pil')
