@@ -352,12 +352,4 @@ class ControlExtension(omni.ext.IExt):
 
     def draw_vision2(self):
         print("draw_vision2")
-        from omni.kit.viewport.utility import get_active_viewport
-        from omni.kit.viewport.window import get_viewport_window_instances
-
-        viewport_api = get_active_viewport()
-        viewport_api.resolution = (640, 480)
-        # print("viewport_api:", viewport_api.resolution)	
-
-        # https://docs.omniverse.nvidia.com/kit/docs/omni.kit.viewport.docs/latest/viewport_api.html
-        
+             
