@@ -16,6 +16,7 @@ except:
 from PIL import Image
 import requests
 import base64
+import os
 
 import omni.usd
 import carb 
@@ -26,20 +27,25 @@ import omni.graph.core as og
 from omni.physx import get_physx_scene_query_interface
 from omni.debugdraw import get_debug_draw_interface
 
-CX = 1280/2 # principal point x
-CY = 720/2 # principal point y
+CX = 1920/2 # principal point x
+CY = 1080/2 # principal point y
 
 class VisionHelper():
-    def __init__(self, vision_url: str, vision_folder:str, vision_model = "dino") -> None:
+    def __init__(self, 
+                 vision_url: str, 
+                 vision_folder:str, 
+                 camera_prim_path = "/OmniverseKit_Persp",
+                 vision_model = "dino") -> None:
         # vision
         self.vision_url = vision_url
         self.vision_folder = vision_folder
         self.vision_model = vision_model
+        self.camera_prim_path = camera_prim_path
         
         # stage
         self.stage = omni.usd.get_context().get_stage()
 
-    def get_bounding_box_data(self, image_file: str, object_name: str, threshold: float):
+    def get_prediction_data(self, image_file: str, object_name: str):
         """
         Get bounding box data from the Gradio server
         """
@@ -51,7 +57,7 @@ class VisionHelper():
         data_url = "data:image/png;base64," + encoded_string.decode("utf-8")
         payload = {
             "data": [
-                data_url, object_name, threshold
+                data_url, object_name
             ]
         }
 
@@ -139,3 +145,25 @@ class VisionHelper():
 
         return hit_position
         
+    ############################################# action #############################################
+    def capture_image(self, folder_path = "I:\\Temp\\VisionTest", image_name = "test"):
+
+        from omni.kit.capture.viewport import CaptureOptions, CaptureExtension
+
+        options = CaptureOptions()
+        options.file_name = image_name
+        options.file_type = ".png"
+        options.output_folder = str(folder_path)
+
+        options.camera = self.camera_prim_path
+        
+        if not os.path.exists(options.output_folder):
+            pass
+        images = os.listdir(options.output_folder)
+        for item in images:
+            if item.endswith(options.file_type) and item.startswith(options.file_name):
+                os.remove(os.path.join(options.output_folder, item))
+
+        capture_instance = CaptureExtension().get_instance()
+        capture_instance.options = options
+        capture_instance.start() 

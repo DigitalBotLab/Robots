@@ -242,9 +242,10 @@ class ControlExtension(omni.ext.IExt):
 
     def debug(self):
         print("debug")
-        if self.robot:
-            self.controller.apply_high_level_action("pick_up_capsule")
-            self.controller.apply_high_level_action("move_capsule_to_coffee_machine")
+        # if self.robot:
+        #     self.controller.apply_high_level_action("pick_up_capsule")
+        #     self.controller.apply_high_level_action("move_capsule_to_coffee_machine")
+       
     
     def debug2(self):
         print("debug2")
@@ -293,7 +294,7 @@ class ControlExtension(omni.ext.IExt):
     def test_vision(self):
         print("test_vision")
         from .vision.vision_helper import VisionHelper
-        self.vision_helper = VisionHelper(vision_url=None, vision_folder="C:\\Research\\Temp")
+        self.vision_helper = VisionHelper(vision_url=None, vision_folder="I:\\Temp")
         # self.vision_helper.get_image_from_webcam()
 
         self.vision_helper.obtain_camera_transform(camara_path="/World/Camera")
@@ -324,8 +325,6 @@ class ControlExtension(omni.ext.IExt):
         from omni.ui import scene as sc
         from omni.ui import color as cl
 
-
-
         from omni.kit.viewport.utility import get_active_viewport_window
         self._viewport_window = get_active_viewport_window()
 
@@ -351,5 +350,84 @@ class ControlExtension(omni.ext.IExt):
             self._viewport_window.viewport_api.add_scene_view(self.scene_view)
 
     def draw_vision2(self):
-        print("draw_vision2")
+        # print("draw_vision2")
+
+        from .vision.vision_helper import VisionHelper
+        self.vision_helper = VisionHelper(vision_url="http://127.0.0.1:7860/run/predict", 
+                                          vision_folder="I:\\Temp",
+                                          camera_prim_path="/World/Camera",
+                                          vision_model="fastsam")
+
+        # self.vision_helper.capture_image(folder_path="I:\\Temp\\VisionTest", image_name="test") 
+    
+        import cv2
+        import os
+        import numpy as np
+
+        img_path = None
+        print("os.listdir", os.listdir("I:\\Temp\\VisionTest"))
+        for item in os.listdir("I:\\Temp\\VisionTest"):
+            print("item:", item)
+            if item.endswith(".png") and item.startswith("test"):
+                img_path = os.path.join("I:\\Temp\\VisionTest", item)
+                break
+        
+        assert img_path, "image not found"
+        print("img_path:", img_path)
+        image = cv2.imread(img_path)
+        hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+
+        lower_blue = np.array([90, 50, 50])   
+        upper_blue = np.array([130, 255, 255])
+        mask = cv2.inRange(hsv_image, lower_blue, upper_blue)
+        kernel = np.ones((5, 5), np.uint8)
+        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)  
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        contour = contours[0]
+        arclen = cv2.arcLength(contour, True)
+        # WARNING: 0.005 is a magic number
+        contour = cv2.approxPolyDP(contour, arclen*0.005, True)
+        cv2.drawContours(image, [contour], -1, (0, 255, 0), 2)  # Green color, thickness 2
+
+        print("contour:", contour, len(contour))
+        
+
+        # response_data = self.vision_helper.get_prediction_data("I:\\Temp\\0.jpg", "grey tea tower")
+        # print(response_data)
+
+        # response_data =  {'data': ['[[[[736, 113]], [[608, 133]], [[591, 151]], [[590, 373]], [[620, 419]], [[646, 419]], [[741, 392]], [[790, 162]]]]'], 'is_generating': False, 'duration': 11.769976139068604, 'average_duration': 11.769976139068604}
+        # import json
+        # import numpy as np
+        # countour = json.loads(response_data["data"][0])
+        print("countour", contour)
+        points = np.array([p[0] for p in contour])
+        print("p0", points)
+
+        from .vision.utils import find_bottom_point, find_left_point
+        bottom_point = find_bottom_point(points)
+        left_point = find_left_point(points)
+        print("bottom_point", bottom_point)
+
+        image = cv2.circle(image, bottom_point, radius=10, color=(255, 0, 255), thickness=-1)
+        image = cv2.circle(image, left_point, radius=10, color=(255, 255, 0), thickness=-1)
+        
+        cv2.imshow('Blue Contours', image)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+        #REFERENCE: Camera Calibration and 3D Reconstruction from Single Images Using Parallelepipeds
+
+        self.vision_helper.obtain_camera_transform(camara_path="/World/Camera")
+        t = self.vision_helper.camera_mat.ExtractTranslation()
+        print("camera offset", t)
+        foc = 900
+        world_d = self.vision_helper.get_world_direction_from_camera_point(left_point[0], 1080 - left_point[1], foc, foc)
+        world_d= world_d.GetNormalized()
+        print("world_d:", world_d)
+
+        self.vision_helper.draw_debug_line(t, world_d, length=10)
+        # self.vision_helper.get_hit_position(t, world_d, target_prim_path="/World/Desk")
+
+
              
