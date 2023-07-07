@@ -245,6 +245,8 @@ class ControlExtension(omni.ext.IExt):
         # if self.robot:
         #     self.controller.apply_high_level_action("pick_up_capsule")
         #     self.controller.apply_high_level_action("move_capsule_to_coffee_machine")
+        if self.robot:
+            self.controller.apply_high_level_action("pick_up_box")
        
     
     def debug2(self):
@@ -321,33 +323,42 @@ class ControlExtension(omni.ext.IExt):
 
 
     def draw_vision(self):
-        print("draw_vision")
-        from omni.ui import scene as sc
-        from omni.ui import color as cl
+        # print("draw_vision")
+        # from omni.ui import scene as sc
+        # from omni.ui import color as cl
 
-        from omni.kit.viewport.utility import get_active_viewport_window
-        self._viewport_window = get_active_viewport_window()
+        # from omni.kit.viewport.utility import get_active_viewport_window
+        # self._viewport_window = get_active_viewport_window()
 
-        if hasattr(self, "scene_view"):
-            self.scene_view.scene.clear()
-            if self._viewport_window:
-                self._viewport_window.viewport_api.remove_scene_view(self.scene_view)
-            self.scene_view = None
+        # if hasattr(self, "scene_view"):
+        #     self.scene_view.scene.clear()
+        #     if self._viewport_window:
+        #         self._viewport_window.viewport_api.remove_scene_view(self.scene_view)
+        #     self.scene_view = None
 
-        with self._viewport_window.get_frame(0):
-            self.scene_view = sc.SceneView()
-            self.scene_view.scene.clear()
+        # with self._viewport_window.get_frame(0):
+        #     self.scene_view = sc.SceneView()
+        #     self.scene_view.scene.clear()
 
-            points_b = [[12500.0, 0, 0.0], [0.0, 0, 12500.0], [-12500.0, 0, 0.0], [-0.0, 0, -12500.0], [12500.0, 0, -0.0]]
-            with self.scene_view.scene:
-                transform = sc.Transform()
-                # move_ges = MoveGesture(transform)
-                with transform:
-                    for pt in points_b:
-                        sc.Curve([pt, [0, 0, 0]], thicknesses=[1.0], colors=[cl.green], curve_type=sc.Curve.CurveType.LINEAR)
+        #     points_b = [[12500.0, 0, 0.0], [0.0, 0, 12500.0], [-12500.0, 0, 0.0], [-0.0, 0, -12500.0], [12500.0, 0, -0.0]]
+        #     with self.scene_view.scene:
+        #         transform = sc.Transform()
+        #         # move_ges = MoveGesture(transform)
+        #         with transform:
+        #             for pt in points_b:
+        #                 sc.Curve([pt, [0, 0, 0]], thicknesses=[1.0], colors=[cl.green], curve_type=sc.Curve.CurveType.LINEAR)
       
 
-            self._viewport_window.viewport_api.add_scene_view(self.scene_view)
+        #     self._viewport_window.viewport_api.add_scene_view(self.scene_view)
+
+        from .vision.vision_helper import VisionHelper
+        self.vision_helper = VisionHelper(vision_url="http://127.0.0.1:7860/run/predict", 
+                                          vision_folder="I:\\Temp",
+                                          camera_prim_path="/World/Camera",
+                                          vision_model="fastsam")
+
+        self.vision_helper.capture_image(folder_path="I:\\Temp\\VisionTest", image_name="test") 
+        return
 
     def draw_vision2(self):
         # print("draw_vision2")
@@ -359,10 +370,13 @@ class ControlExtension(omni.ext.IExt):
                                           vision_model="fastsam")
 
         # self.vision_helper.capture_image(folder_path="I:\\Temp\\VisionTest", image_name="test") 
-    
+        # return
+
         import cv2
         import os
         import numpy as np
+
+        from .vision.utils import find_bottom_point, find_left_point, get_projection, get_box_transform_from_point
 
         img_path = None
         print("os.listdir", os.listdir("I:\\Temp\\VisionTest"))
@@ -404,7 +418,7 @@ class ControlExtension(omni.ext.IExt):
         points = np.array([p[0] for p in contour])
         print("p0", points)
 
-        from .vision.utils import find_bottom_point, find_left_point
+        
         bottom_point = find_bottom_point(points)
         left_point = find_left_point(points)
         print("bottom_point", bottom_point)
@@ -419,15 +433,32 @@ class ControlExtension(omni.ext.IExt):
         #REFERENCE: Camera Calibration and 3D Reconstruction from Single Images Using Parallelepipeds
 
         self.vision_helper.obtain_camera_transform(camara_path="/World/Camera")
-        t = self.vision_helper.camera_mat.ExtractTranslation()
-        print("camera offset", t)
-        foc = 900
-        world_d = self.vision_helper.get_world_direction_from_camera_point(left_point[0], 1080 - left_point[1], foc, foc)
-        world_d= world_d.GetNormalized()
-        print("world_d:", world_d)
+        camera_pos = self.vision_helper.camera_mat.ExtractTranslation()
+        print("camera offset", camera_pos)
+        foc = 910
+        bottom_d = self.vision_helper.get_world_direction_from_camera_point(bottom_point[0], 1080 - bottom_point[1], foc, foc)
+        bottom_d= bottom_d.GetNormalized()
+        print("bottom_d:", bottom_d)
 
-        self.vision_helper.draw_debug_line(t, world_d, length=10)
+        left_d = self.vision_helper.get_world_direction_from_camera_point(left_point[0], 1080 - left_point[1], foc, foc)
+        left_d= left_d.GetNormalized()
+        print("left_d:", left_d)
+
+        self.vision_helper.draw_debug_line(camera_pos, left_d, length=10)
         # self.vision_helper.get_hit_position(t, world_d, target_prim_path="/World/Desk")
 
+        box_transform, box_rotation = get_box_transform_from_point(camera_pos, bottom_d, left_d, affordance_z = -0.02)
+        print("box_transform:", box_transform)
+        print("box_rotation:", box_rotation)
 
-             
+        stage = omni.usd.get_context().get_stage()
+        stage.DefinePrim("/World/box", "Xform")
+        mat = Gf.Matrix4d().SetScale(1) * \
+               Gf.Matrix4d().SetRotate(box_rotation) * \
+                Gf.Matrix4d().SetTranslate(Gf.Vec3d(box_transform[0], box_transform[1], box_transform[2]))
+        
+        omni.kit.commands.execute(
+            "TransformPrimCommand",
+            path="/World/box",
+            new_transform_matrix=mat,
+        )

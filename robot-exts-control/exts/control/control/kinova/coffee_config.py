@@ -268,4 +268,39 @@ kinova_action_config = {
         ]
     },
     
+    ##################################### blendid #########################################
+    "pick_up_box": {
+        'base_prim': '/World/tea_towerf',
+        'steps':[
+            {
+                'action_type': 'move',
+                'duration': 300,
+                'position': [-0.15, 0.0, 0.3],
+                'orientation': [0.5, 0.5, 0.5, 0.5],
+            },
+            # {
+            #     'action_type': 'move',
+            #     'duration': 100,
+            #     'position': [-0.15, 0.0, 0.1],
+            #     'orientation': [0.5, 0.5, 0.5, 0.5],
+            # },
+            # {
+            #     'action_type': 'move',
+            #     'duration': 100,
+            #     'position': [-0.15, 0.0, 0.00],
+            #     'orientation': [0.5, 0.5, 0.5, 0.5],
+            # },
+            # {
+            #     'action_type': 'close',
+            #     'duration': 60,
+            #     'ratio': 0.4,
+            # },
+            # {
+            #     'action_type': 'move',
+            #     'duration': 100,
+            #     'position': [-0.15, 0.0, 0.3],
+            #     'orientation': [0.5, 0.5, 0.5, 0.5],
+            # },
+        ]
+    },
 }
