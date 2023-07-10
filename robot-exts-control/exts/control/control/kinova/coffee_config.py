@@ -270,20 +270,25 @@ kinova_action_config = {
     
     ##################################### blendid #########################################
     "pick_up_box": {
-        'base_prim': '/World/tea_towerf',
+        'base_prim': '/World/tea_tower',
         'steps':[
             {
+                'action_type': 'close', #open
+                'duration': 50,
+                'ratio': 0.0,
+            },
+            {
                 'action_type': 'move',
-                'duration': 300,
-                'position': [-0.15, 0.0, 0.3],
+                'duration': 200,
+                'position': [-0.38, 0.0, 0.15],
                 'orientation': [0.5, 0.5, 0.5, 0.5],
             },
-            # {
-            #     'action_type': 'move',
-            #     'duration': 100,
-            #     'position': [-0.15, 0.0, 0.1],
-            #     'orientation': [0.5, 0.5, 0.5, 0.5],
-            # },
+            {
+                'action_type': 'move',
+                'duration': 100,
+                'position': [-0.28, 0.0, 0.15],
+                'orientation': [0.5, 0.5, 0.5, 0.5],
+            },
             # {
             #     'action_type': 'move',
             #     'duration': 100,

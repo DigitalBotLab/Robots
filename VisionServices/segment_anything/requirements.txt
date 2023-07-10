@@ -1,0 +1,4 @@
+opencv-python
+matplotlib
+
+git+https://github.com/facebookresearch/segment-anything.git
