@@ -8,7 +8,7 @@ import json
 
 from segment_anything import sam_model_registry, SamPredictor
 
-SEGMENT_ANYTHING_FOLDER = "I:/Research/semgent-anything"
+SEGMENT_ANYTHING_FOLDER = "C:\\Users\\zhaoy\\Downloads"#"I:/Research/semgent-anything"
 MODEL_TYPE = "vit_b"
 SAM_CHECKPOINT = os.path.join(SEGMENT_ANYTHING_FOLDER, "sam_vit_b_01ec64.pth")
 device = "cuda"
@@ -62,10 +62,11 @@ def segment_with_points(
     arclen = cv2.arcLength(contour, True)
     
     if shape == "cuboid":
-        for ratio in [0.005, 0.01, 0.02, 0.05, 0.1]:
+        for ratio in [0.01, 0.02, 0.005, 0.01, 0.02, 0.05, 0.1]:
             epsilon = ratio * arclen
             approx = cv2.approxPolyDP(contour, epsilon, True)
             if len(approx) == shape_contour_count:
+                
                 break
     else: # bounding box
         x, y, w, h = cv2.boundingRect(contour)
