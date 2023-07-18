@@ -9,8 +9,8 @@ import json
 from segment_anything import sam_model_registry, SamPredictor
 
 SEGMENT_ANYTHING_FOLDER = "C:\\Users\\zhaoy\\Downloads"#"I:/Research/semgent-anything"
-MODEL_TYPE = "vit_b"
-SAM_CHECKPOINT = os.path.join(SEGMENT_ANYTHING_FOLDER, "sam_vit_b_01ec64.pth")
+MODEL_TYPE = "vit_b" #"vit_b"
+SAM_CHECKPOINT = os.path.join(SEGMENT_ANYTHING_FOLDER, "sam_vit_b_01ec64.pth") # sam_vit_h_4b8939 # sam_vit_b_01ec64
 device = "cuda"
 
 sam = sam_model_registry[MODEL_TYPE](checkpoint=SAM_CHECKPOINT)
